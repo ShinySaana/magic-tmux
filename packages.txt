@@ -1,0 +1,5 @@
+lib:
+gdbm libcap libevent ncurses pcre2
+
+bin:
+neovim tmux zsh

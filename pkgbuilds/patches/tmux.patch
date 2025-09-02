@@ -1,0 +1,15 @@
+diff --git a/PKGBUILD b/PKGBUILD
+index a076c00..9a109d6 100644
+--- a/PKGBUILD
++++ b/PKGBUILD
+@@ -28,8 +28,8 @@ build() {
+ 	./configure \
+ 		--prefix=/usr \
+ 		--enable-sixel \
+-		--enable-systemd \
+-		--enable-utempter
++		--disable-systemd \
++		--disable-utempter
+ 	make
+ }
+ 

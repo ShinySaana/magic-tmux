@@ -1,0 +1,153 @@
+diff --git a/0100-relocatable-for-appimage.patch b/0100-relocatable-for-appimage.patch
+new file mode 100644
+index 0000000..d098027
+--- /dev/null
++++ b/0100-relocatable-for-appimage.patch
+@@ -0,0 +1,118 @@
++diff --git a/Completion/Zsh/Command/_run-help b/Completion/Zsh/Command/_run-help
++index 81adc4d84..674a48dcc 100644
++--- a/Completion/Zsh/Command/_run-help
+++++ b/Completion/Zsh/Command/_run-help
++@@ -1,6 +1,6 @@
++ #compdef run-help
++ local d expl
++-local HELPDIR=${HELPDIR:-@runhelpdir@}
+++local HELPDIR=${HELPDIR:-${APPDIR}@runhelpdir@}
++ [[ -d $HELPDIR ]] && {
++ 	d=($HELPDIR/*(:t))
++ 	(($#d)) && d+=('.' ':') && _wanted commands expl 'command' compadd -a d
++diff --git a/Functions/Misc/run-help b/Functions/Misc/run-help
++index d52c1b032..1adc352e0 100644
++--- a/Functions/Misc/run-help
+++++ b/Functions/Misc/run-help
++@@ -10,7 +10,7 @@
++ 
++ emulate -RL zsh
++ 
++-local HELPDIR="${HELPDIR:-@runhelpdir@}"
+++local HELPDIR="${HELPDIR:-${APPDIR}@runhelpdir@}"
++ 
++ [[ $1 == "." ]] && 1="dot"
++ [[ $1 == ":" ]] && 1="colon"
++diff --git a/Src/Modules/newuser.c b/Src/Modules/newuser.c
++index 6f0d2e0aa..9be3b0610 100644
++--- a/Src/Modules/newuser.c
+++++ b/Src/Modules/newuser.c
++@@ -68,12 +68,14 @@ int
++ boot_(UNUSED(Module m))
++ {
++     const char *dotdir = getsparam_u("ZDOTDIR");
+++    char *appdir = getenv("APPDIR");
++     const char *spaths[] = {
++ #ifdef SITESCRIPT_DIR
++-	SITESCRIPT_DIR,
+++	// These calls leak. Too bad!
+++	bicat(appdir, SITESCRIPT_DIR),
++ #endif
++ #ifdef SCRIPT_DIR
++-	SCRIPT_DIR,
+++	bicat(appdir, SCRIPT_DIR),
++ #endif
++ 	0 };
++     const char **sp;
++diff --git a/Src/init.c b/Src/init.c
++index 871d46b12..ad55c7f38 100644
++--- a/Src/init.c
+++++ b/Src/init.c
++@@ -911,6 +911,7 @@ setupvals(char *cmd, char *runscript, char *zsh_name)
++     int fpathlen = FIXED_FPATH_LEN + SITE_FPATH_LEN;
++ #endif
++     int close_fds[10], tmppipe[2];
+++    char *appdir = getenv("APPDIR");
++ 
++     /*
++      * Workaround a problem with NIS (in one guise or another) which
++@@ -1002,7 +1003,7 @@ setupvals(char *cmd, char *runscript, char *zsh_name)
++     fpath = fpathptr = (char **)zalloc((fpathlen+1)*sizeof(char *));
++ # ifdef FIXED_FPATH_DIR
++     /* Zeroth: /usr/local/share/zsh/site-functions */
++-    *fpathptr++ = ztrdup(FIXED_FPATH_DIR);
+++    *fpathptr++ = bicat(appdir, FIXED_FPATH_DIR);
++     fpathlen--;
++ # endif
++ # ifdef SITEFPATH_DIR
++@@ -1010,7 +1011,7 @@ setupvals(char *cmd, char *runscript, char *zsh_name)
++      *
++      * default: /usr/local/share/zsh/site-functions
++      * (but changeable by passing --prefix or --datadir to configure) */
++-    *fpathptr++ = ztrdup(SITEFPATH_DIR);
+++    *fpathptr++ = bicat(appdir, SITEFPATH_DIR);
++     fpathlen--;
++ # endif /* SITEFPATH_DIR */
++ # if defined(ADDITIONAL_FPATH)
++@@ -1018,7 +1019,7 @@ setupvals(char *cmd, char *runscript, char *zsh_name)
++      * 
++      * default: empty list */
++     for (j = 0; j < more_fndirs_len; j++)
++-	*fpathptr++ = ztrdup(more_fndirs[j]);
+++	*fpathptr++ = bicat(appdir, more_fndirs[j]);
++ # endif
++ # ifdef FPATH_DIR
++     /* Third: The directory from --enable-fndir
++@@ -1026,14 +1027,18 @@ setupvals(char *cmd, char *runscript, char *zsh_name)
++      * default: /usr/local/share/zsh/${ZSH_VERSION}/functions */
++ #  ifdef FPATH_SUBDIRS
++ #   ifdef ADDITIONAL_FPATH
++-    for (j = more_fndirs_len; j < fpathlen; j++)
++-	*fpathptr++ = tricat(FPATH_DIR, "/", fpath_subdirs[j - more_fndirs_len]);
+++    for (j = more_fndirs_len; j < fpathlen; j++) {
+++	char *strs[] = { appdir, FPATH_DIR, fpath_subdirs[j - more_fndirs_len] };
+++	*fpathptr++ = zjoin(strs, '/', 0);
+++    }
++ #   else
++-    for (j = 0; j < fpathlen; j++)
++-	*fpathptr++ = tricat(FPATH_DIR, "/", fpath_subdirs[j]);
+++    for (j = 0; j < fpathlen; j++) {
+++	char *strs[] = { appdir, FPATH_DIR, fpath_subdirs[j] };
+++	*fpathptr++ = zjoin(strs, '/', 0);
+++    }
++ #   endif
++ #  else
++-    *fpathptr++ = ztrdup(FPATH_DIR);
+++    *fpathptr++ = bicat(appdir, FPATH_DIR);
++ #  endif
++ # endif
++     *fpathptr = NULL;
++@@ -1043,7 +1048,7 @@ setupvals(char *cmd, char *runscript, char *zsh_name)
++ 
++     mailpath = mkarray(NULL);
++     psvar    = mkarray(NULL);
++-    module_path = mkarray(ztrdup(MODULE_DIR));
+++    module_path = mkarray(bicat(appdir, MODULE_DIR));
++     modulestab = newmoduletable(17, "modules");
++     linkedmodules = znewlinklist();
++ 
+diff --git a/PKGBUILD b/PKGBUILD
+index 12b1e95..64e3a06 100644
+--- a/PKGBUILD
++++ b/PKGBUILD
+@@ -15,6 +15,7 @@ source=("https://www.zsh.org/pub/zsh-${pkgver}"{,-doc}".tar.xz"{,.asc}
+         '0003-51862-support-texinfo-7-0.patch'
+         '0004-pcre2.patch'
+         '0005-52383-avoid-incompatible-pointer-types.patch'
++        '0100-relocatable-for-appimage.patch'
+         'zprofile')
+ sha512sums=('d9138b7f379ad942a5f46819d2dd52d31f3a1129f2a0d1b53d4c5cd43c318b60396da6d37c57c477b8e958fb750209aca0ae93f8c9dd42ac958de006a0ff067e'
+             'SKIP'
+@@ -26,6 +27,7 @@ sha512sums=('d9138b7f379ad942a5f46819d2dd52d31f3a1129f2a0d1b53d4c5cd43c318b60396
+             '891577e8c3a5beb236a7044a0960a014d8a7149ce5dba7715f07b1e4d2db475f4aab7bb6cfeadaaeffe37fb889836f368467882fba1a5ac23076548185432d51'
+             '2b6fd1d077244023591e7e2995797e90b2cda7f9c8b3978521c0b77ef1c363f175b6ebb48730deb7171c695cba23c9455d71c3ddc5a55da91832274121587af5'
+             '984c804bfa4c7c9b1ddba9f18bbd29846bf6f2b3171f39bb775c11c8b1c7b5ad2c68d2922a59265c58f6e83016d6d440d64862c529d82f90cad308fd2af757ce'
++            '9375f919894e6bc36e5477ad07a3513e588105eb422b561b250ce842a0418d323cfb55d6ba422e8fb4f7e256d9282f92f43048efe40e7252855951a9e562a874'
+             'b287e00d8de4dc4cfb1c52bb2aef1d4b191de3512baad4c91dc81e78ddc3e5bb07297f43924b022ac44ff401a348d8a9fa366e19ddc8ea1ea72df311f5ed0034')
+ validpgpkeys=('F7B2754C7DE2830914661F0EA71D9A9D4BDB27B3'
+               'E96646BE08C0AF0AA0F90788A5FEEE3AC7937444'
+@@ -54,6 +56,8 @@ prepare() {
+   # 52394: Avoid incompatible pointer types in terminfo global variable checks
+   patch -Np1 < ../0005-52383-avoid-incompatible-pointer-types.patch
+ 
++  patch -Np1 < ../0100-relocatable-for-appimage.patch
++
+   # Set correct keymap path
+   sed -i 's#/usr/share/keymaps#/usr/share/kbd/keymaps#g' Completion/Unix/Command/_loadkeys
+ 

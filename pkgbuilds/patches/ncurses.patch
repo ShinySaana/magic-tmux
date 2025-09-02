@@ -1,0 +1,14 @@
+diff --git a/PKGBUILD b/PKGBUILD
+index bd7ec30..14cd8e1 100644
+--- a/PKGBUILD
++++ b/PKGBUILD
+@@ -62,8 +62,7 @@ build() {
+     --enable-widec
+     --enable-pc-files
+     --mandir=/usr/share/man
+-    --with-cxx-binding
+-    --with-cxx-shared
++    --without-cxx-binding
+     --with-manpage-format=normal
+     --with-pkg-config-libdir=/usr/lib/pkgconfig
+     --with-shared

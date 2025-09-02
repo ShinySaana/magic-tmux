@@ -1,0 +1,14 @@
+diff --git a/PKGBUILD b/PKGBUILD
+index 700dd1b..78592dd 100644
+--- a/PKGBUILD
++++ b/PKGBUILD
+@@ -40,7 +40,8 @@ build() {
+     -DCMAKE_SKIP_INSTALL_RPATH=TRUE \
+     -DEVENT__LIBRARY_TYPE=SHARED \
+     -DEVENT__DISABLE_REGRESS=OFF \
+-    -DEVENT__DOXYGEN=ON
++    -DEVENT__DOXYGEN=ON \
++    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+   cmake --build build
+ }
+ 
