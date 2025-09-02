@@ -1,0 +1,24 @@
+[submodule "pkgbuilds/bin/tmux"]
+	path = pkgbuilds/bin/tmux
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/tmux.git
+[submodule "pkgbuilds/bin/neovim"]
+	path = pkgbuilds/bin/neovim
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/neovim.git
+[submodule "pkgbuilds/bin/zsh"]
+	path = pkgbuilds/bin/zsh
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/zsh.git
+[submodule "pkgbuilds/lib/gdbm"]
+	path = pkgbuilds/lib/gdbm
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/gdbm.git
+[submodule "pkgbuilds/lib/libevent"]
+	path = pkgbuilds/lib/libevent
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/libevent.git
+[submodule "pkgbuilds/lib/ncurses"]
+	path = pkgbuilds/lib/ncurses
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/ncurses.git
+[submodule "pkgbuilds/lib/pcre2"]
+	path = pkgbuilds/lib/pcre2
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/pcre2.git
+[submodule "pkgbuilds/lib/libcap"]
+	path = pkgbuilds/lib/libcap
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/libcap.git
