@@ -1,12 +1,12 @@
 diff --git a/PKGBUILD b/PKGBUILD
-index a076c00..1eca80c 100644
+index a076c00..2a989bc 100644
 --- a/PKGBUILD
 +++ b/PKGBUILD
 @@ -27,9 +27,10 @@ build() {
  
  	./configure \
  		--prefix=/usr \
-+		--sysconfdir='$APPDIR/etc' \
++		--sysconfdir='$$APPDIR/etc' \
  		--enable-sixel \
 -		--enable-systemd \
 -		--enable-utempter
