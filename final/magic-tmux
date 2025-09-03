@@ -1,8 +1,8 @@
 #!/bin/sh
-export APPDIR=$(realpath "$(dirname "$0")")
+export APPDIR="$(realpath "$(dirname "$0")")"
 
-[[ -d "$APPDIR.home"   ]] && export HOME="$APPDIR.home"
-[[ -d "$APPDIR.config" ]] && export XDG_CONFIG_HOME="$APPDIR.config"
+[ -d "$APPDIR.home"   ] && export HOME="$APPDIR.home"
+[ -d "$APPDIR.config" ] && export XDG_CONFIG_HOME="$APPDIR.config"
 
 export LD_LIBRARY_PATH="$APPDIR/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 export PATH="$APPDIR/usr/bin${PATH:+:$PATH}"
@@ -10,4 +10,9 @@ export PATH="$APPDIR/usr/bin${PATH:+:$PATH}"
 export XDG_CONFIG_DIRS="$APPDIR/etc${XDG_CONFIG_DIRS:+:$XDG_CONFIG_DIRS}"
 export TERMINFO_DIRS="$APPDIR/usr/share/terminfo${TERMINFO_DIRS:+:$TERMINFO_DIRS}"
 
-exec "$APPDIR/usr/bin/tmux" "$@"
+# If we're already in tmux/screen, run zsh directly instead.
+if [ "$TMUX" ] || case "$TERM" in tmux-*|screen-*) true;; *) false;; esac; then
+    exec "$APPDIR/usr/bin/zsh" -l
+else
+    exec "$APPDIR/usr/bin/tmux" "$@"
+fi
