@@ -1,7 +1,12 @@
 # magic tmux
 
-This repository contains patched Arch Linux packages for tmux, zsh and neovim in order to compile
-them against an older glibc (2.36) and allow them to be deployed as an AppImage.
+This repository contains scripts for compiling tmux, zsh and neovim against glibc 2.36 and allow
+them to be deployed anywhere as a simple tarball, without requiring packages to be compiled on an
+older system.
 
-The goal is to create an up-to-date development environment that can be deployed onto older
-Linux servers as a single file.
+This project uses the latest Arch Linux PKGBUILDs with minor patches to enable portability and
+compiling against the older libc.
+
+It supports side-by-side home and configuration directories the same way as AppImages.
+
+The resulting archive is ~15 MB zstd-compressed.
