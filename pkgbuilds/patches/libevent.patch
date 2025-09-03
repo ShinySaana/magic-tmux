@@ -1,17 +1,16 @@
 diff --git a/PKGBUILD b/PKGBUILD
-index 700dd1b..87797b1 100644
+index 700dd1b..c64d797 100644
 --- a/PKGBUILD
 +++ b/PKGBUILD
-@@ -9,7 +9,7 @@ pkgdesc="Event notification library"
+@@ -9,7 +9,6 @@ pkgdesc="Event notification library"
  url="https://libevent.org/"
  arch=(x86_64)
  license=(BSD-3-Clause-Modification)
 -depends=(openssl)
-+depends=()
  makedepends=(cmake ninja python zlib doxygen)
  source=(
    https://github.com/libevent/libevent/releases/download/release-$pkgver-stable/libevent-$pkgver-stable.tar.gz{,.asc}
-@@ -40,7 +40,9 @@ build() {
+@@ -40,7 +39,9 @@ build() {
      -DCMAKE_SKIP_INSTALL_RPATH=TRUE \
      -DEVENT__LIBRARY_TYPE=SHARED \
      -DEVENT__DISABLE_REGRESS=OFF \
@@ -22,7 +21,7 @@ index 700dd1b..87797b1 100644
    cmake --build build
  }
  
-@@ -50,7 +52,7 @@ check() {
+@@ -50,7 +51,7 @@ check() {
  }
  
  package_libevent() {
