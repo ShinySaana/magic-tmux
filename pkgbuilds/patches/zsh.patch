@@ -1,8 +1,8 @@
-diff --git a/0100-relocatable-for-appimage.patch b/0100-relocatable-for-appimage.patch
+diff --git a/0100-relocatable-appdir.patch b/0100-relocatable-appdir.patch
 new file mode 100644
 index 0000000..ee3586d
 --- /dev/null
-+++ b/0100-relocatable-for-appimage.patch
++++ b/0100-relocatable-appdir.patch
 @@ -0,0 +1,128 @@
 +diff --git a/Completion/Zsh/Command/_run-help b/Completion/Zsh/Command/_run-help
 +index 81adc4d84..674a48dcc 100644
@@ -140,7 +140,7 @@ index 12b1e95..3c1122b 100644
          '0003-51862-support-texinfo-7-0.patch'
          '0004-pcre2.patch'
          '0005-52383-avoid-incompatible-pointer-types.patch'
-+        '0100-relocatable-for-appimage.patch'
++        '0100-relocatable-appdir.patch'
          'zprofile')
  sha512sums=('d9138b7f379ad942a5f46819d2dd52d31f3a1129f2a0d1b53d4c5cd43c318b60396da6d37c57c477b8e958fb750209aca0ae93f8c9dd42ac958de006a0ff067e'
              'SKIP'
@@ -155,8 +155,8 @@ index 12b1e95..3c1122b 100644
 @@ -54,6 +56,8 @@ prepare() {
    # 52394: Avoid incompatible pointer types in terminfo global variable checks
    patch -Np1 < ../0005-52383-avoid-incompatible-pointer-types.patch
- 
-+  patch -Np1 < ../0100-relocatable-for-appimage.patch
+
++  patch -Np1 < ../0100-relocatable-appdir.patch
 +
    # Set correct keymap path
    sed -i 's#/usr/share/keymaps#/usr/share/kbd/keymaps#g' Completion/Unix/Command/_loadkeys
