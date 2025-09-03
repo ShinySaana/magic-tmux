@@ -1,14 +1,33 @@
 diff --git a/PKGBUILD b/PKGBUILD
-index 700dd1b..78592dd 100644
+index 700dd1b..87797b1 100644
 --- a/PKGBUILD
 +++ b/PKGBUILD
-@@ -40,7 +40,8 @@ build() {
+@@ -9,7 +9,7 @@ pkgdesc="Event notification library"
+ url="https://libevent.org/"
+ arch=(x86_64)
+ license=(BSD-3-Clause-Modification)
+-depends=(openssl)
++depends=()
+ makedepends=(cmake ninja python zlib doxygen)
+ source=(
+   https://github.com/libevent/libevent/releases/download/release-$pkgver-stable/libevent-$pkgver-stable.tar.gz{,.asc}
+@@ -40,7 +40,9 @@ build() {
      -DCMAKE_SKIP_INSTALL_RPATH=TRUE \
      -DEVENT__LIBRARY_TYPE=SHARED \
      -DEVENT__DISABLE_REGRESS=OFF \
 -    -DEVENT__DOXYGEN=ON
 +    -DEVENT__DOXYGEN=ON \
++    -DEVENT__DISABLE_OPENSSL=ON \
 +    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
    cmake --build build
  }
  
+@@ -50,7 +52,7 @@ check() {
+ }
+ 
+ package_libevent() {
+-  provides=(libevent{,_core,_extra,_openssl,_pthreads}-2.1.so)
++  provides=(libevent{,_core,_extra,_pthreads}-2.1.so)
+   optdepends=('python: event_rpcgen.py')
+ 
+   DESTDIR="$pkgdir" cmake --install build

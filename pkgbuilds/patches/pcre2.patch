@@ -1,0 +1,25 @@
+diff --git a/PKGBUILD b/PKGBUILD
+index ec4b76e..f2be65e 100644
+--- a/PKGBUILD
++++ b/PKGBUILD
+@@ -16,10 +16,7 @@ license=(
+   'BSD-3-Clause WITH PCRE2-exception'
+ )
+ depends=(
+-  bzip2
+   glibc
+-  readline
+-  zlib
+ )
+ makedepends=(git)
+ optdepends=('sh: for pcre2-config')
+@@ -58,9 +55,6 @@ build() {
+     --enable-jit
+     --enable-pcre2-16
+     --enable-pcre2-32
+-    --enable-pcre2grep-libbz2
+-    --enable-pcre2grep-libz
+-    --enable-pcre2test-libreadline
+     --prefix=/usr
+   )
+ 

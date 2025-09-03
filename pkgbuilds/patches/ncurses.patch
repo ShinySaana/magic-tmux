@@ -1,8 +1,21 @@
 diff --git a/PKGBUILD b/PKGBUILD
-index bd7ec30..14cd8e1 100644
+index bd7ec30..f082c3c 100644
 --- a/PKGBUILD
 +++ b/PKGBUILD
-@@ -62,8 +62,7 @@ build() {
+@@ -20,7 +20,6 @@ makedepends=(
+ )
+ optdepends=('bash: for ncursesw6-config')
+ provides=(
+-  libncurses++w.so
+   libformw.so
+   libmenuw.so
+   libpanelw.so
+@@ -57,25 +56,25 @@ build() {
+   local configure_options=(
+     --prefix=/usr
+     --disable-root-access
+-    --disable-root-environ
+     --disable-setuid-environ
      --enable-widec
      --enable-pc-files
      --mandir=/usr/share/man
@@ -12,3 +25,25 @@ index bd7ec30..14cd8e1 100644
      --with-manpage-format=normal
      --with-pkg-config-libdir=/usr/lib/pkgconfig
      --with-shared
+     --with-versioned-syms
+     --with-xterm-kbs=del
+     --without-ada
++    --with-terminfo-dirs=/usr/lib/terminfo
+   )
+ 
+   # allow building with gcc >= 15
+   CFLAGS+=' -std=gnu17'
+ 
+   cd $pkgname
++  unset TERMINFO TERMINFO_DIRS
+   ./configure "${configure_options[@]}"
+   make
+ }
+@@ -83,6 +82,7 @@ build() {
+ package() {
+   local _pkgver=${pkgver/_*/}
+ 
++  unset TERMINFO TERMINFO_DIRS
+   make DESTDIR="$pkgdir" install -C $pkgname
+   install -vDm 644 $pkgname/COPYING -t "$pkgdir/usr/share/licenses/$pkgname/"
+ 

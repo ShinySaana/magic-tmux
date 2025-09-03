@@ -1,9 +1,9 @@
 diff --git a/0100-relocatable-for-appimage.patch b/0100-relocatable-for-appimage.patch
 new file mode 100644
-index 0000000..d098027
+index 0000000..ee3586d
 --- /dev/null
 +++ b/0100-relocatable-for-appimage.patch
-@@ -0,0 +1,118 @@
+@@ -0,0 +1,128 @@
 +diff --git a/Completion/Zsh/Command/_run-help b/Completion/Zsh/Command/_run-help
 +index 81adc4d84..674a48dcc 100644
 +--- a/Completion/Zsh/Command/_run-help
@@ -51,7 +51,7 @@ index 0000000..d098027
 + 	0 };
 +     const char **sp;
 +diff --git a/Src/init.c b/Src/init.c
-+index 871d46b12..ad55c7f38 100644
++index 871d46b12..64f6970c6 100644
 +--- a/Src/init.c
 ++++ b/Src/init.c
 +@@ -911,6 +911,7 @@ setupvals(char *cmd, char *runscript, char *zsh_name)
@@ -96,14 +96,14 @@ index 0000000..d098027
 +-    for (j = more_fndirs_len; j < fpathlen; j++)
 +-	*fpathptr++ = tricat(FPATH_DIR, "/", fpath_subdirs[j - more_fndirs_len]);
 ++    for (j = more_fndirs_len; j < fpathlen; j++) {
-++	char *strs[] = { appdir, FPATH_DIR, fpath_subdirs[j - more_fndirs_len] };
+++	char *strs[] = { appdir, FPATH_DIR + 1, fpath_subdirs[j - more_fndirs_len], NULL };
 ++	*fpathptr++ = zjoin(strs, '/', 0);
 ++    }
 + #   else
 +-    for (j = 0; j < fpathlen; j++)
 +-	*fpathptr++ = tricat(FPATH_DIR, "/", fpath_subdirs[j]);
 ++    for (j = 0; j < fpathlen; j++) {
-++	char *strs[] = { appdir, FPATH_DIR, fpath_subdirs[j] };
+++	char *strs[] = { appdir, FPATH_DIR + 1, fpath_subdirs[j], NULL };
 ++	*fpathptr++ = zjoin(strs, '/', 0);
 ++    }
 + #   endif
@@ -122,8 +122,18 @@ index 0000000..d098027
 +     modulestab = newmoduletable(17, "modules");
 +     linkedmodules = znewlinklist();
 + 
++@@ -1322,7 +1327,8 @@ run_init_scripts(void)
++ 	    source("/etc/suid_profile");
++     } else {
++ #ifdef GLOBAL_ZSHENV
++-	source(GLOBAL_ZSHENV);
+++	// Source from APPDIR first
+++	source(bicat(getenv("APPDIR"), GLOBAL_ZSHENV));
++ #endif
++ 
++ 	if (isset(RCS) && unset(PRIVILEGED))
 diff --git a/PKGBUILD b/PKGBUILD
-index 12b1e95..64e3a06 100644
+index 12b1e95..3c1122b 100644
 --- a/PKGBUILD
 +++ b/PKGBUILD
 @@ -15,6 +15,7 @@ source=("https://www.zsh.org/pub/zsh-${pkgver}"{,-doc}".tar.xz"{,.asc}
@@ -138,7 +148,7 @@ index 12b1e95..64e3a06 100644
              '891577e8c3a5beb236a7044a0960a014d8a7149ce5dba7715f07b1e4d2db475f4aab7bb6cfeadaaeffe37fb889836f368467882fba1a5ac23076548185432d51'
              '2b6fd1d077244023591e7e2995797e90b2cda7f9c8b3978521c0b77ef1c363f175b6ebb48730deb7171c695cba23c9455d71c3ddc5a55da91832274121587af5'
              '984c804bfa4c7c9b1ddba9f18bbd29846bf6f2b3171f39bb775c11c8b1c7b5ad2c68d2922a59265c58f6e83016d6d440d64862c529d82f90cad308fd2af757ce'
-+            '9375f919894e6bc36e5477ad07a3513e588105eb422b561b250ce842a0418d323cfb55d6ba422e8fb4f7e256d9282f92f43048efe40e7252855951a9e562a874'
++            'd675fc5b30f1375929c9a3787094bab04c2c040a2be1ffa50503e2d2e782858fe93d879fc7ca08830b237fb8fa394c4a7570076471037d6af10255f994bf2fb4'
              'b287e00d8de4dc4cfb1c52bb2aef1d4b191de3512baad4c91dc81e78ddc3e5bb07297f43924b022ac44ff401a348d8a9fa366e19ddc8ea1ea72df311f5ed0034')
  validpgpkeys=('F7B2754C7DE2830914661F0EA71D9A9D4BDB27B3'
                'E96646BE08C0AF0AA0F90788A5FEEE3AC7937444'

@@ -1,0 +1,6 @@
+#!/bin/sh
+export APPDIR=$(realpath "$(dirname "$0")")
+export PATH="$APPDIR/usr/bin${PATH:+:$PATH}"
+export LD_LIBRARY_PATH="$APPDIR/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export TERMINFO_DIRS="$APPDIR/usr/share/terminfo${TERMINFO_DIRS:+:$TERMINFO_DIRS}"
+exec "$APPDIR/usr/bin/tmux" "$@"
