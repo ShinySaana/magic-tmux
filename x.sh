@@ -182,7 +182,11 @@ read_marker() {
 make_tarball() {
     msg "building final tarball ${1##*/}"
 
-    local tarflags=(--no-fflags --no-read-sparse --zstd --options zstd:threads=0 -s ',^,magic-tmux/,S')
+    local tarflags=(
+        --no-fflags --no-read-sparse
+        --zstd --options zstd:threads=0
+        -s ',^,magic-tmux/,S' -s ',/\(config\|home\),.\1,S'
+    )
     (
         cd "$FINALDIR";
         LC_COLLATE=C;
