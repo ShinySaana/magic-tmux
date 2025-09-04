@@ -68,6 +68,14 @@ patch_libc() {
         "$SYSROOT/stage1/usr/lib/libc.so" "$SYSROOT/stage1/usr/lib/libm."{a,so}
 }
 
+clean_pkg() {
+    msg "cleaning ${PWD##*/}"
+    git reset --hard HEAD
+    # For some reason Go decides to store packages in read-only directories...
+    [[ -d src ]] && chmod -R u+w src
+    git clean -xdff
+}
+
 patch_pkgbuild() {
     [[ -f PKGBUILD ]] || return 1
     [[ -f "../../patches/${PWD##*/}.patch" ]] || return 0
@@ -82,9 +90,7 @@ build_pkg() {
 }
 
 cleanbuild_pkg() {
-    msg "cleaning ${PWD##*/}"
-    git reset --hard HEAD
-    git clean -xdff
+    clean_pkg
     patch_pkgbuild
     build_pkg -f
 }
@@ -144,7 +150,7 @@ stage3() {
     files=(
         'usr/lib/libcap.so*'
         'usr/lib/libevent_core.so*'
-        'usr/lib/libgdbm.so*'
+        'usr/lib/libevent_core-2.1.so*'
         'usr/lib/libncursesw.so*'
         'usr/lib/libpcre2-8.so*'
         'usr/share/licenses'
@@ -168,7 +174,7 @@ stage3() {
     msg "cleaning up"
     files=(
         etc/skel
-        usr/share/{applications,icons}
+        usr/share/{applications,bash-completion,fish,fzf,icons,locale,vim}
     )
     ( cd "$FINALDIR"; rm -rv -- ${files[@]} )
 
@@ -176,7 +182,7 @@ stage3() {
 }
 
 read_marker() {
-    cat "$CACHEDIR/marker"
+    [[ -f "$CACHEDIR/marker" ]] && cat "$CACHEDIR/marker"
 }
 
 # make_tarball <srcdir> <filename>
@@ -228,7 +234,14 @@ build() {
 }
 
 clean() {
-    rm -r "$SYSROOT" "$CACHEDIR"
+    rm -rf "$SYSROOT" "$CACHEDIR"
+
+    (
+        cd "$PKGDIR"
+        for pkg in lib/* bin/*; do
+            ( cd "$pkg"; clean_pkg )
+        done
+    )
 }
 
 # reset <marker>
@@ -236,11 +249,14 @@ reset() {
     write_marker "$1"
 }
 
-# add_pkgbuild <lib|bin> <name>
+# add_pkgbuild <lib|bin> <PACKAGE> <NAME>
 add_pkgbuild() {
     [[ $1 == @(lib|bin) ]] || return 1
 
-    git submodule add https://gitlab.archlinux.org/archlinux/packaging/packages/$2.git "$PKGDIR/$1/$2"
+    (
+        cd "$HERE"
+        git submodule add https://gitlab.archlinux.org/archlinux/packaging/packages/$2.git "pkgbuilds/$1/$3"
+    )
 }
 
 usage() {
@@ -263,7 +279,7 @@ main() {
         build) build;;
         clean) clean;;
         reset) reset "$2";;
-        add) add_pkgbuild "$2" "$3";;
+        add) add_pkgbuild "$2" "$3" "${4:-$3}";;
         help|--help) usage;;
         *)
             echo "unknown command $1. see x.sh help for commands." >&2

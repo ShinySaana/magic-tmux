@@ -1,6 +1,3 @@
-[submodule "pkgbuilds/lib/gdbm"]
-	path = pkgbuilds/lib/gdbm
-	url = https://gitlab.archlinux.org/archlinux/packaging/packages/gdbm.git
 [submodule "pkgbuilds/lib/libevent"]
 	path = pkgbuilds/lib/libevent
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/libevent.git
@@ -16,12 +13,21 @@
 [submodule "pkgbuilds/bin/direnv"]
 	path = pkgbuilds/bin/direnv
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/direnv.git
+[submodule "pkgbuilds/bin/fd"]
+	path = pkgbuilds/bin/fd
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/fd.git
+[submodule "pkgbuilds/bin/fzf"]
+	path = pkgbuilds/bin/fzf
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/fzf.git
 [submodule "pkgbuilds/bin/git-zsh-completion"]
 	path = pkgbuilds/bin/git-zsh-completion
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/git.git
 [submodule "pkgbuilds/bin/grml-zsh-config"]
 	path = pkgbuilds/bin/grml-zsh-config
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/grml-zsh-config.git
+[submodule "pkgbuilds/bin/ripgrep"]
+	path = pkgbuilds/bin/ripgrep
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/ripgrep.git
 [submodule "pkgbuilds/bin/tmux"]
 	path = pkgbuilds/bin/tmux
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/tmux.git
@@ -31,3 +37,6 @@
 [submodule "pkgbuilds/bin/zsh-completions"]
 	path = pkgbuilds/bin/zsh-completions
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/zsh-completions.git
+[submodule "pkgbuilds/bin/starship"]
+	path = pkgbuilds/bin/starship
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/starship.git

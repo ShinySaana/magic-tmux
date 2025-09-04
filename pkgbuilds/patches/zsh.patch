@@ -165,9 +165,18 @@ index 0000000..dafb9f5
 + 	    if (isset(RCS) && unset(PRIVILEGED))
 + 		sourcehome(".zlogin");
 diff --git a/PKGBUILD b/PKGBUILD
-index 12b1e95..a4cf664 100644
+index 12b1e95..64216c1 100644
 --- a/PKGBUILD
 +++ b/PKGBUILD
+@@ -7,7 +7,7 @@ pkgrel=5
+ arch=('x86_64')
+ url='https://www.zsh.org/'
+ license=('custom')
+-makedepends=('pcre2' 'libcap' 'gdbm' 'yodl')
++makedepends=('pcre2' 'libcap' 'yodl')
+ source=("https://www.zsh.org/pub/zsh-${pkgver}"{,-doc}".tar.xz"{,.asc}
+         '0001-50629-do-not-use-egrep-in-tests.patch'
+         '0001-50641-use-int-main.patch'
 @@ -15,6 +15,7 @@ source=("https://www.zsh.org/pub/zsh-${pkgver}"{,-doc}".tar.xz"{,.asc}
          '0003-51862-support-texinfo-7-0.patch'
          '0004-pcre2.patch'
@@ -193,3 +202,11 @@ index 12b1e95..a4cf664 100644
    # Set correct keymap path
    sed -i 's#/usr/share/keymaps#/usr/share/kbd/keymaps#g' Completion/Unix/Command/_loadkeys
  
+@@ -95,7 +99,6 @@ build() {
+     --enable-scriptdir=/usr/share/zsh/scripts \
+     --with-tcsetpgrp \
+     --enable-pcre \
+-    --enable-gdbm \
+     --enable-cap \
+     --enable-zsh-secure-free
+   make
