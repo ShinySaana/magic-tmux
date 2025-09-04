@@ -9,4 +9,6 @@ compiling against the older libc.
 
 It supports side-by-side home and configuration directories the same way as AppImages.
 
-The resulting archive is ~15 MB zstd-compressed.
+The resulting archive is ~28 MB zstd-compressed and 78 MB uncompressed.
+
+To build, run `./x.sh build`. You may be asked to install build dependencies.
