@@ -1,5 +1,5 @@
 diff --git a/PKGBUILD b/PKGBUILD
-index ec4b76e..f2be65e 100644
+index ec4b76e..46abaea 100644
 --- a/PKGBUILD
 +++ b/PKGBUILD
 @@ -16,10 +16,7 @@ license=(
@@ -13,10 +13,12 @@ index ec4b76e..f2be65e 100644
  )
  makedepends=(git)
  optdepends=('sh: for pcre2-config')
-@@ -58,9 +55,6 @@ build() {
+@@ -56,11 +53,6 @@ prepare() {
+ build() {
+   local configure_options=(
      --enable-jit
-     --enable-pcre2-16
-     --enable-pcre2-32
+-    --enable-pcre2-16
+-    --enable-pcre2-32
 -    --enable-pcre2grep-libbz2
 -    --enable-pcre2grep-libz
 -    --enable-pcre2test-libreadline
