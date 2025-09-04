@@ -64,7 +64,8 @@ extract_to_sysroot() {
 
 patch_libc() {
     msg "patching libc paths"
-    perl -pi -e "s@(/.*?(libc|ld-linux|libm))@$SYSROOT/stage1\1@g" "$SYSROOT/stage1/usr/lib/libc.so" "$SYSROOT/stage1/usr/lib/libm."{a,so}
+    perl -pi -e "s@(/.*?(libc|ld-linux|libm))@$SYSROOT/stage1\1@g" \
+        "$SYSROOT/stage1/usr/lib/libc.so" "$SYSROOT/stage1/usr/lib/libm."{a,so}
 }
 
 patch_pkgbuild() {
@@ -118,8 +119,8 @@ stage2() {
     msg "===== STAGE 2 ====="
 
     msg "extracting stage1 libraries to stage2"
-    printf "%s\0" "$PKGDIR"/lib/*/!(*-doc?(s)-*).pkg.tar.*
-        | xargs -0 -n1 bsdtar -xC "$SYSROOT/stage2" --exclude '.*' -f
+    printf "%s\0" "$PKGDIR"/lib/*/!(*-doc?(s)-*).pkg.tar.* |
+        xargs -0 -n1 bsdtar -xC "$SYSROOT/stage2" --exclude '.*' -f
 
     msg "compiling binaries"
     (
@@ -153,14 +154,16 @@ stage3() {
         usr/bin/{captoinfo,clear,infocmp,infotocap,reset,tabs,tic,toe,tput,tset}
         usr/share/man/man1/{captoinfo,clear,infocmp,infotocap,reset,tabs,tic,tput,tset}.'*'
     )
-    ( cd "$SYSROOT/stage2"; cp -av --parents -- ${files[@]} "$FINALDIR" )
+    ( cd "$SYSROOT/stage2"; cp -a --parents -- ${files[@]} "$FINALDIR" )
 
     msg "installing binaries to final directory"
-    printf "%s\0" "$PKGDIR"/bin/*/!(*-doc?(s)-*).pkg.tar.* "$nvim_tar"
-        | xargs -0 -n1 bsdtar -xC "$FINALDIR" --exclude '.*' -f
+    printf "%s\0" "$PKGDIR"/bin/*/!(*-doc?(s)-*).pkg.tar.* |
+        xargs -0 -n1 bsdtar -xC "$FINALDIR" --exclude '.*' -f
+
+    bsdtar -xC "$FINALDIR/usr" --exclude '.*' -f "$nvim_tar" --strip-components 1
 
     msg "copying base files to final directory"
-    cp -av --parents "$BASEDIR/*" "$FINALDIR"
+    ( cd "$BASEDIR"; cp -a --parents * "$FINALDIR" )
 
     msg "cleaning up"
     files=(
@@ -177,7 +180,7 @@ read_marker() {
 
 # make_tarball <srcdir> <filename>
 make_tarball() {
-    msg "building final tarball $1"
+    msg "building final tarball ${1##*/}"
 
     local tarflags=(--no-fflags --no-read-sparse --zstd --options zstd:threads=0 -s ',^,magic-tmux/,S')
     (
@@ -190,7 +193,7 @@ make_tarball() {
 
 main() {
     local stage=$(read_marker)
-    local tar="magic-tmux.tar.zst"
+    local tar="$HERE/magic-tmux.tar.zst"
 
     mkdir -p "$SYSROOT/stage1" "$SYSROOT/stage2" "$CACHEDIR" "$FINALDIR"
     echo '*' > "$CACHEDIR/.gitignore"
