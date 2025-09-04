@@ -154,7 +154,6 @@ stage3() {
         'usr/lib/libncursesw.so*'
         'usr/lib/libpcre2-8.so*'
         'usr/share/licenses'
-        'usr/share/locale'
         'usr/share/tabset'
         'usr/share/terminfo'
         usr/bin/{captoinfo,clear,infocmp,infotocap,reset,tabs,tic,toe,tput,tset}
@@ -174,7 +173,7 @@ stage3() {
     msg "cleaning up"
     files=(
         etc/skel
-        usr/share/{applications,bash-completion,fish,fzf,icons,locale,vim}
+        usr/share/{applications,bash-completion,fish,fzf,icons,vim}
     )
     ( cd "$FINALDIR"; rm -rv -- ${files[@]} )
 
