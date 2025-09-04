@@ -91,7 +91,7 @@ cleanbuild_pkg() {
 
 # write_marker <marker>
 write_marker() {
-    echo "$1" > "$CACHEDIR/marker"
+    printf "%s\n" "$1" > "$CACHEDIR/marker"
 }
 
 stage1() {
@@ -191,12 +191,14 @@ make_tarball() {
     )
 }
 
-main() {
+build() {
     local stage=$(read_marker)
     local tar="$HERE/magic-tmux.tar.zst"
 
     mkdir -p "$SYSROOT/stage1" "$SYSROOT/stage2" "$CACHEDIR" "$FINALDIR"
+    echo '*' > "$SYSROOT/.gitignore"
     echo '*' > "$CACHEDIR/.gitignore"
+    [[ -f "$CACHEDIR/marker" ]] || echo > "$CACHEDIR/marker"
 
     case "$stage" in
         stage1)
@@ -220,4 +222,48 @@ main() {
     esac
 }
 
-main
+clean() {
+    rm -r "$SYSROOT" "$CACHEDIR"
+}
+
+# reset <marker>
+reset() {
+    write_marker "$1"
+}
+
+# add_pkgbuild <lib|bin> <name>
+add_pkgbuild() {
+    [[ $1 == @(lib|bin) ]] || return 1
+
+    git submodule add https://gitlab.archlinux.org/archlinux/packaging/packages/$2.git "$PKGDIR/$1/$2"
+}
+
+usage() {
+    cat <<HELPEOF
+usage: x.sh [command]
+
+available commands:
+
+  build                         build the project. default if no command is specified.
+  clean                         clean up build and cache directories.
+  reset <STAGE>                 reset build to specified STAGE
+  add <lib|bin> <PACKAGE>       add PKGBUILD to project
+  help                          show this text
+HELPEOF
+}
+
+# main [command]
+main() {
+    case "${1:-build}" in
+        build) build;;
+        clean) clean;;
+        reset) reset "$2";;
+        add) add_pkgbuild "$2" "$3";;
+        help|--help) usage;;
+        *)
+            echo "unknown command $1. see x.sh help for commands." >&2
+            return 1;;
+    esac
+}
+
+main "$@"
