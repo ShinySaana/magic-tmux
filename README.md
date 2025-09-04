@@ -30,4 +30,32 @@ The resulting archive is ~28 MB zstd-compressed and ~78 MB uncompressed:
   77.8 MiB   final
 ```
 
+(generated using `erd -Cforce -dlogical -Hi -L3 -yflat build/final | grep --color=never MiB`)
+
+The following packages are included:
+
+- direnv
+- fd
+- fzf
+- git-zsh-completion
+- grml-zsh-config
+- ripgrep
+- starship
+- tmux
+- zsh
+- zsh-completions
+
+As well as any libraries other than what's provided by glibc:
+
+- libcap
+- libevent
+- ncurses
+- pcre2
+
 To build, run `./x.sh build`. You may be asked to install build dependencies.
+
+Side-by-side home and configuration directories can be added to the final archive by creating and
+adding files to `base/home` and `base/config` repspectively.
+
+Global initialisation and shutdown files for tmux and zsh are read from `base/etc` only but source
+the corresponding files from the system `/etc` directory by default.
