@@ -39,6 +39,34 @@ BASEDIR="$HERE/base"
 CACHEDIR="$HERE/cache"
 FINALDIR="$SYSROOT/final"
 
+NEOVIM=1
+
+# Package selection
+# If the user specified PACKAGES, only include neovim if explicitly listed
+# Otherwise, include everything
+#
+# TODO: Libraries are included unconditionally right now
+# under the expectation the user will want to include tmux & zsh.
+if [[ -v PACKAGES ]]; then
+    if [[ $PACKAGES != *@(nvim|neovim)* ]]; then
+        NEOVIM=0
+    fi
+    PACKAGES="${PACKAGES//@(nvim|neovim)/}"
+
+    for pkg in $PACKAGES; do
+        if [[ ! -d "$PKGDIR/bin/$pkg" ]]; then
+            printf "Error: package $pkg missing. Check spelling or run: $0 add bin $pkg" >&2
+            exit 1
+        fi
+    done
+
+    PACKAGES="${PACKAGES//+([[:space:]])/|}"
+    PACKAGES="${PACKAGES#|}"
+    PACKAGES="${PACKAGES%|}"
+else
+    PACKAGES="*"
+fi
+
 # dump_symvers <file>
 dump_symvers() {
     nm -Du ${1:+"$1"} | grep -P 'GLIBC_2\.(3[7-9]|[4-9][0-9])'
@@ -131,7 +159,7 @@ stage2() {
     msg "compiling binaries"
     (
         cd "$PKGDIR/bin"
-        for pkg in */; do
+        for pkg in @($PACKAGES)/; do
             ( cd "$pkg"; cleanbuild_pkg )
         done
     )
@@ -143,8 +171,10 @@ stage3() {
     msg "===== STAGE 3 ====="
 
     local nvim_tar="$CACHEDIR/nvim.tar.gz"
-    [[ -f "$nvim_tar" ]] ||
-        download_file "$NEOVIM_URL" "$nvim_tar"
+    if (( NEOVIM )); then
+        [[ -f "$nvim_tar" ]] ||
+            download_file "$NEOVIM_URL" "$nvim_tar"
+    fi
 
     msg "copying stage2 files to final directory"
     files=(
@@ -161,10 +191,10 @@ stage3() {
     ( cd "$SYSROOT/stage2"; cp -a --parents -- ${files[@]} "$FINALDIR" )
 
     msg "installing binaries to final directory"
-    printf "%s\0" "$PKGDIR"/bin/*/!(*-doc?(s)-*).pkg.tar.* |
+    printf "%s\0" "$PKGDIR"/bin/@($PACKAGES)/!(*-doc?(s)-*).pkg.tar.* |
         xargs -0 -n1 bsdtar -xC "$FINALDIR" --exclude '.*' -f
 
-    bsdtar -xC "$FINALDIR/usr" --exclude '.*' -f "$nvim_tar" --strip-components 1
+    (( NEOVIM )) && bsdtar -xC "$FINALDIR/usr" --exclude '.*' -f "$nvim_tar" --strip-components 1
 
     msg "copying base files to final directory"
     ( cd "$BASEDIR"; cp -a --parents * "$FINALDIR" )
