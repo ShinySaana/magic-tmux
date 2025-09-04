@@ -1,24 +1,33 @@
-[submodule "pkgbuilds/bin/tmux"]
-	path = pkgbuilds/bin/tmux
-	url = https://gitlab.archlinux.org/archlinux/packaging/packages/tmux.git
-[submodule "pkgbuilds/bin/neovim"]
-	path = pkgbuilds/bin/neovim
-	url = https://gitlab.archlinux.org/archlinux/packaging/packages/neovim.git
-[submodule "pkgbuilds/bin/zsh"]
-	path = pkgbuilds/bin/zsh
-	url = https://gitlab.archlinux.org/archlinux/packaging/packages/zsh.git
 [submodule "pkgbuilds/lib/gdbm"]
 	path = pkgbuilds/lib/gdbm
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/gdbm.git
 [submodule "pkgbuilds/lib/libevent"]
 	path = pkgbuilds/lib/libevent
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/libevent.git
+[submodule "pkgbuilds/lib/libcap"]
+	path = pkgbuilds/lib/libcap
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/libcap.git
 [submodule "pkgbuilds/lib/ncurses"]
 	path = pkgbuilds/lib/ncurses
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/ncurses.git
 [submodule "pkgbuilds/lib/pcre2"]
 	path = pkgbuilds/lib/pcre2
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/pcre2.git
-[submodule "pkgbuilds/lib/libcap"]
-	path = pkgbuilds/lib/libcap
-	url = https://gitlab.archlinux.org/archlinux/packaging/packages/libcap.git
+[submodule "pkgbuilds/bin/direnv"]
+	path = pkgbuilds/bin/direnv
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/direnv.git
+[submodule "pkgbuilds/bin/git-zsh-completion"]
+	path = pkgbuilds/bin/git-zsh-completion
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/git.git
+[submodule "pkgbuilds/bin/grml-zsh-config"]
+	path = pkgbuilds/bin/grml-zsh-config
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/grml-zsh-config.git
+[submodule "pkgbuilds/bin/tmux"]
+	path = pkgbuilds/bin/tmux
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/tmux.git
+[submodule "pkgbuilds/bin/zsh"]
+	path = pkgbuilds/bin/zsh
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/zsh.git
+[submodule "pkgbuilds/bin/zsh-completions"]
+	path = pkgbuilds/bin/zsh-completions
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/zsh-completions.git

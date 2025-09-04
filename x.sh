@@ -167,6 +167,7 @@ stage3() {
 
     msg "cleaning up"
     files=(
+        etc/skel
         usr/share/{applications,icons}
     )
     ( cd "$FINALDIR"; rm -rv -- ${files[@]} )
