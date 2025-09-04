@@ -1,9 +1,9 @@
 diff --git a/0100-relocatable-appdir.patch b/0100-relocatable-appdir.patch
 new file mode 100644
-index 0000000..ee3586d
+index 0000000..dafb9f5
 --- /dev/null
 +++ b/0100-relocatable-appdir.patch
-@@ -0,0 +1,128 @@
+@@ -0,0 +1,160 @@
 +diff --git a/Completion/Zsh/Command/_run-help b/Completion/Zsh/Command/_run-help
 +index 81adc4d84..674a48dcc 100644
 +--- a/Completion/Zsh/Command/_run-help
@@ -30,10 +30,10 @@ index 0000000..ee3586d
 + [[ $1 == "." ]] && 1="dot"
 + [[ $1 == ":" ]] && 1="colon"
 +diff --git a/Src/Modules/newuser.c b/Src/Modules/newuser.c
-+index 6f0d2e0aa..9be3b0610 100644
++index 6f0d2e0aa..8b39de967 100644
 +--- a/Src/Modules/newuser.c
 ++++ b/Src/Modules/newuser.c
-+@@ -68,12 +68,14 @@ int
++@@ -68,12 +68,13 @@ int
 + boot_(UNUSED(Module m))
 + {
 +     const char *dotdir = getsparam_u("ZDOTDIR");
@@ -41,7 +41,6 @@ index 0000000..ee3586d
 +     const char *spaths[] = {
 + #ifdef SITESCRIPT_DIR
 +-	SITESCRIPT_DIR,
-++	// These calls leak. Too bad!
 ++	bicat(appdir, SITESCRIPT_DIR),
 + #endif
 + #ifdef SCRIPT_DIR
@@ -50,8 +49,21 @@ index 0000000..ee3586d
 + #endif
 + 	0 };
 +     const char **sp;
++diff --git a/Src/builtin.c b/Src/builtin.c
++index 1cef7cce8..79d3dc36d 100644
++--- a/Src/builtin.c
+++++ b/Src/builtin.c
++@@ -5873,7 +5873,7 @@ zexit(int val, enum zexit_t from_where)
++ 	    sourcehome(".zlogout");
++ #ifdef GLOBAL_ZLOGOUT
++ 	    if (isset(RCS) && isset(GLOBALRCS))
++-		source(GLOBAL_ZLOGOUT);
+++		source(bicat(getenv("APPDIR"), GLOBAL_ZLOGOUT));
++ #endif
++ 	}
++     }
 +diff --git a/Src/init.c b/Src/init.c
-+index 871d46b12..64f6970c6 100644
++index 871d46b12..9421c2b59 100644
 +--- a/Src/init.c
 ++++ b/Src/init.c
 +@@ -911,6 +911,7 @@ setupvals(char *cmd, char *runscript, char *zsh_name)
@@ -62,15 +74,6 @@ index 0000000..ee3586d
 + 
 +     /*
 +      * Workaround a problem with NIS (in one guise or another) which
-+@@ -1002,7 +1003,7 @@ setupvals(char *cmd, char *runscript, char *zsh_name)
-+     fpath = fpathptr = (char **)zalloc((fpathlen+1)*sizeof(char *));
-+ # ifdef FIXED_FPATH_DIR
-+     /* Zeroth: /usr/local/share/zsh/site-functions */
-+-    *fpathptr++ = ztrdup(FIXED_FPATH_DIR);
-++    *fpathptr++ = bicat(appdir, FIXED_FPATH_DIR);
-+     fpathlen--;
-+ # endif
-+ # ifdef SITEFPATH_DIR
 +@@ -1010,7 +1011,7 @@ setupvals(char *cmd, char *runscript, char *zsh_name)
 +      *
 +      * default: /usr/local/share/zsh/site-functions
@@ -122,18 +125,47 @@ index 0000000..ee3586d
 +     modulestab = newmoduletable(17, "modules");
 +     linkedmodules = znewlinklist();
 + 
-+@@ -1322,7 +1327,8 @@ run_init_scripts(void)
++@@ -1321,8 +1326,10 @@ run_init_scripts(void)
++ 	} else
 + 	    source("/etc/suid_profile");
 +     } else {
+++	char *appdir = getenv("APPDIR");
 + #ifdef GLOBAL_ZSHENV
 +-	source(GLOBAL_ZSHENV);
 ++	// Source from APPDIR first
-++	source(bicat(getenv("APPDIR"), GLOBAL_ZSHENV));
+++	source(bicat(appdir, GLOBAL_ZSHENV));
 + #endif
 + 
 + 	if (isset(RCS) && unset(PRIVILEGED))
++@@ -1343,7 +1350,7 @@ run_init_scripts(void)
++ 	if (islogin) {
++ #ifdef GLOBAL_ZPROFILE
++ 	    if (isset(RCS) && isset(GLOBALRCS))
++-		    source(GLOBAL_ZPROFILE);
+++		    source(bicat(appdir, GLOBAL_ZPROFILE));
++ #endif
++ 	    if (isset(RCS) && unset(PRIVILEGED))
++ 		sourcehome(".zprofile");
++@@ -1351,7 +1358,7 @@ run_init_scripts(void)
++ 	if (interact) {
++ #ifdef GLOBAL_ZSHRC
++ 	    if (isset(RCS) && isset(GLOBALRCS))
++-		source(GLOBAL_ZSHRC);
+++		source(bicat(appdir, GLOBAL_ZSHRC));
++ #endif
++ 	    if (isset(RCS) && unset(PRIVILEGED))
++ 		sourcehome(".zshrc");
++@@ -1359,7 +1366,7 @@ run_init_scripts(void)
++ 	if (islogin) {
++ #ifdef GLOBAL_ZLOGIN
++ 	    if (isset(RCS) && isset(GLOBALRCS))
++-		source(GLOBAL_ZLOGIN);
+++		source(bicat(appdir, GLOBAL_ZLOGIN));
++ #endif
++ 	    if (isset(RCS) && unset(PRIVILEGED))
++ 		sourcehome(".zlogin");
 diff --git a/PKGBUILD b/PKGBUILD
-index 12b1e95..3c1122b 100644
+index 12b1e95..a4cf664 100644
 --- a/PKGBUILD
 +++ b/PKGBUILD
 @@ -15,6 +15,7 @@ source=("https://www.zsh.org/pub/zsh-${pkgver}"{,-doc}".tar.xz"{,.asc}
@@ -148,14 +180,14 @@ index 12b1e95..3c1122b 100644
              '891577e8c3a5beb236a7044a0960a014d8a7149ce5dba7715f07b1e4d2db475f4aab7bb6cfeadaaeffe37fb889836f368467882fba1a5ac23076548185432d51'
              '2b6fd1d077244023591e7e2995797e90b2cda7f9c8b3978521c0b77ef1c363f175b6ebb48730deb7171c695cba23c9455d71c3ddc5a55da91832274121587af5'
              '984c804bfa4c7c9b1ddba9f18bbd29846bf6f2b3171f39bb775c11c8b1c7b5ad2c68d2922a59265c58f6e83016d6d440d64862c529d82f90cad308fd2af757ce'
-+            'd675fc5b30f1375929c9a3787094bab04c2c040a2be1ffa50503e2d2e782858fe93d879fc7ca08830b237fb8fa394c4a7570076471037d6af10255f994bf2fb4'
++            '10b99c9e15b8f64c919dfa0c1f6f3df15d45a36d35e1cd553dc0dff817284c99a7391c4e0489d03950f46fb19ad29fc60307a2485584a0b63227eec8212b457b'
              'b287e00d8de4dc4cfb1c52bb2aef1d4b191de3512baad4c91dc81e78ddc3e5bb07297f43924b022ac44ff401a348d8a9fa366e19ddc8ea1ea72df311f5ed0034')
  validpgpkeys=('F7B2754C7DE2830914661F0EA71D9A9D4BDB27B3'
                'E96646BE08C0AF0AA0F90788A5FEEE3AC7937444'
 @@ -54,6 +56,8 @@ prepare() {
    # 52394: Avoid incompatible pointer types in terminfo global variable checks
    patch -Np1 < ../0005-52383-avoid-incompatible-pointer-types.patch
-
+ 
 +  patch -Np1 < ../0100-relocatable-appdir.patch
 +
    # Set correct keymap path
