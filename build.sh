@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 # Dependencies:
 # pacman (curl, libarchive)
 # base (findutils, grep, coreutils)
@@ -20,6 +19,9 @@
 # 2.34 (RHEL 9)
 # 2.28 (RHEL 8)
 
+set -euo pipefail
+shopt -s extglob
+
 ARCH=x86_64
 
 # GLIBC_VERSION="2.31-5"
@@ -28,9 +30,6 @@ GLIBC_URL="https://archive.archlinux.org/packages/g/glibc/glibc-$GLIBC_VERSION-$
 
 NEOVIM_VERSION=v0.11.4
 NEOVIM_URL="https://github.com/neovim/neovim/releases/download/$NEOVIM_VERSION/nvim-linux-$ARCH.tar.gz"
-
-set -euo pipefail
-shopt -s extglob
 
 HERE="$(realpath "$(dirname "$0")")"
 
