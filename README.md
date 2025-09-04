@@ -59,3 +59,13 @@ adding files to `base/home` and `base/config` repspectively.
 
 Global initialisation and shutdown files for tmux and zsh are read from `base/etc` only but source
 the corresponding files from the system `/etc` directory by default.
+
+## License
+
+The original files in this repository are licensed under the BSD Zero Clause License.
+See [LICENSE.txt](./LICENSE.txt) for more information.
+
+The Arch Linux project's PKGBUILD source files are under the BSD Zero Clause License.
+
+The created archive contains license files for the included software projects in the
+`usr/share/licenses` directory. See the respective projects' PKGBUILD for information.
