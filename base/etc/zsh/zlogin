@@ -1,0 +1,15 @@
+# Work around Debian's /etc/profile being *insane* and
+# 1) resetting your PATH
+# 2) resetting your prompt(s)
+
+case ":$PATH:" in
+    *:"$APPDIR/usr/bin":*)
+        ;;
+    *)
+        PATH="$APPDIR/usr/bin${PATH:+:PATH}"
+        ;;
+esac
+
+if [[ -z $PS1 ]]; then
+    PS1="%m%# "
+fi
