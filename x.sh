@@ -149,8 +149,7 @@ stage3() {
     msg "copying stage2 files to final directory"
     files=(
         'usr/lib/libcap.so*'
-        'usr/lib/libevent_core.so*'
-        'usr/lib/libevent_core-2.1.so*'
+        'usr/lib/libevent_core*.so*'
         'usr/lib/libncursesw.so*'
         'usr/lib/libpcre2-8.so*'
         'usr/share/licenses'
@@ -198,6 +197,9 @@ make_tarball() {
         LC_COLLATE=C;
         shopt -s dotglob globstar
         printf '%s\0' **/* | fakeroot -- bsdtar -cnf "$1" ${tarflags[@]} --null --files-from -
+
+        msg "Uncompressed: $(du -bsh . | cut -f1)" \
+            "Compressed:   $(du -bsh "$1" | cut -f1)"
     )
 }
 
