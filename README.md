@@ -39,11 +39,18 @@ The following packages are included:
 - fzf
 - git-zsh-completion
 - grml-zsh-config
+- neovim
 - ripgrep
 - starship
 - tmux
 - zsh
 - zsh-completions
+
+Package selection can be overwritten by setting the `PACKAGES` environment variable to a space
+separated list of package names (`pkgbuilds/bin/*`). Libraries are included unconditionally right
+now.
+
+You need to run `./x.sh reset stage2` after changing package selection.
 
 As well as any libraries other than what's provided by glibc:
 

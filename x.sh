@@ -48,9 +48,16 @@ NEOVIM=1
 # TODO: Libraries are included unconditionally right now
 # under the expectation the user will want to include tmux & zsh.
 if [[ -v PACKAGES ]]; then
+    if [[ "$PACKAGES" == *([[:space:]]) ]]; then
+        printf "Error: no packages selected." >&2
+        exit 1
+    fi
+
+    # Deselect neovim if not specified
     if [[ $PACKAGES != *@(nvim|neovim)* ]]; then
         NEOVIM=0
     fi
+
     PACKAGES="${PACKAGES//@(nvim|neovim)/}"
 
     for pkg in $PACKAGES; do
@@ -170,6 +177,9 @@ stage2() {
 stage3() {
     msg "===== STAGE 3 ====="
 
+    msg "clearing final directory"
+    ( cd "$FINALDIR"; find . -delete )
+
     local nvim_tar="$CACHEDIR/nvim.tar.gz"
     if (( NEOVIM )); then
         [[ -f "$nvim_tar" ]] ||
@@ -215,7 +225,7 @@ read_marker() {
 
 # make_tarball <srcdir> <filename>
 make_tarball() {
-    msg "building final tarball ${1##*/}"
+    msg "building tarball ${1##*/}"
 
     local tarflags=(
         --no-fflags --no-read-sparse
