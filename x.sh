@@ -3,46 +3,37 @@
 # pacman (curl, libarchive)
 # base (findutils, grep, coreutils)
 # base-devel (fakeroot, patch, perl, sed)
-
-# glibc version table
-# 2.36 ~ 2022
-# 2.31 ~ 2020
-# 2.28 ~ 2018
-#
-# 2.41 (Debian 13)
-# 2.36 (Debian 12)
-# 2.31 (Debian 11)
-# 2.39 (Ubuntu 24.04)
-# 2.35 (Ubuntu 22.04)
-# 2.31 (Ubuntu 20.04)
-# 2.39 (RHEL 10)
-# 2.34 (RHEL 9)
-# 2.28 (RHEL 8)
-#
-# Available on Arch Linux Archive:
-# 2.28-6
-# 2.29-4
-# 2.30-3
-# 2.31-5
-# 2.32-5
-# 2.33-5
-# 2.35-6
-# 2.36-7
-# 2.37-4
-# 2.38-8
-# 2.39+r52+gf8e4623421-1
-# 2.40+r66+g7d4b6bcae91f-1
-# 2.41+r65+ge7c419a29575-1
-# 2.42+r17+gd7274d718e6f-1
-
 set -euo pipefail
 shopt -s extglob
 
+# Table of various distros and their glibc+libgcc versions.
+# Uses the most recent patch version available through:
+#
+# https://archive.archlinux.org/packages/g/glibc/
+# https://archive.archlinux.org/packages/g/gcc-libs/
+declare -A PRESETS=(
+    [debian13]='2.41+r65+ge7c419a29575-1 14.2.1+r730+gc061ad5a36ba-1'
+    [debian12]='2.36-7 12.2.1-4'
+    [debian11]='2.31-5 10.2.0-6'
+    [ubuntu24_04]='2.40+r66+g7d4b6bcae91f-1 14.2.1+r730+gc061ad5a36ba-1'
+    [ubuntu22_04]='2.35-6 12.2.1-4'
+    [ubuntu20_04]='2.31-5 10.2.0-6'
+    [rhel10]='2.39+r52+gf8e4623421-1 14.2.1+r730+gc061ad5a36ba-1'
+    [rhel9]='2.33-5 11.2.0-4'
+    [rhel8]='2.28-6 8.3.0-1 xz'
+)
+
+PRESET="${PRESET:-debian12}"
+VERSIONS=(${PRESETS[$PRESET]})
+
+GLIBC_VERSION="${VERSIONS[0]}"
+GCCLIBS_VERSION="${VERSIONS[1]}"
+PKGEXT="${VERSIONS[2]:-zst}"
+
 ARCH=x86_64
 
-# GLIBC_VERSION="2.31-5"
-GLIBC_VERSION="2.36-7"
-GLIBC_URL="https://archive.archlinux.org/packages/g/glibc/glibc-$GLIBC_VERSION-$ARCH.pkg.tar.zst"
+GLIBC_URL="https://archive.archlinux.org/packages/g/glibc/glibc-$GLIBC_VERSION-$ARCH.pkg.tar.$PKGEXT"
+GCCLIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-$GCCLIBS_VERSION-$ARCH.pkg.tar.$PKGEXT"
 
 NEOVIM_VERSION=v0.11.4
 NEOVIM_URL="https://github.com/neovim/neovim/releases/download/$NEOVIM_VERSION/nvim-linux-$ARCH.tar.gz"
@@ -153,12 +144,19 @@ write_marker() {
 
 stage1() {
     msg "===== STAGE 1 ====="
-    local glibc_tar="$CACHEDIR/glibc.tar.zst"
+    local glibc_tar="$CACHEDIR/glibc.tar.$PKGEXT"
+    local gcclibs_tar="$CACHEDIR/gcc-libs.tar.$PKGEXT"
 
     [[ -f "$glibc_tar" ]] ||
         download_file "$GLIBC_URL" "$glibc_tar"
 
+    [[ -f "$gcclibs_tar" ]] ||
+        download_file "$GCCLIBS_URL" "$gcclibs_tar"
+
+    ( cd "$SYSROOT/stage1"; find . -delete )
+
     extract_to_sysroot "$glibc_tar" stage1
+    extract_to_sysroot "$gcclibs_tar" stage1
     patch_libc
 
     msg "compiling libraries"
@@ -174,6 +172,8 @@ stage1() {
 
 stage2() {
     msg "===== STAGE 2 ====="
+
+    ( cd "$SYSROOT/stage2"; find . -delete )
 
     msg "extracting stage1 libraries to stage2"
     printf "%s\0" "$PKGDIR"/lib/*/!(*-doc?(s)-*).pkg.tar.* |
@@ -193,7 +193,6 @@ stage2() {
 stage3() {
     msg "===== STAGE 3 ====="
 
-    msg "clearing final directory"
     ( cd "$FINALDIR"; find . -delete )
 
     local nvim_tar="$CACHEDIR/nvim.tar.gz"
@@ -327,6 +326,22 @@ available commands:
   reset <STAGE>                 reset build to specified STAGE
   add <lib|bin> <PACKAGE>       add PKGBUILD to project
   help                          show this text
+
+available presets (set via PRESET environment variable):
+
+  debian13              Debian 13 (Trixie)
+  debian12 [Default]    Debian 12 (Bookworm)
+  debian11              Debian 11 (Bullseye)
+  ubuntu24_04           Ubuntu 24.04 LTS (Noble Numbat)
+  ubuntu22_04           Ubuntu 22.04 LTS (Jammy Jellyfish)
+  ubuntu20_04           Ubuntu 20.04 LTS (Focal Fossa)
+  rhel10                Red Hat Enterprise Linux 10
+  rhel9                 Red Hat Enterprise Linux 9
+  rhel8                 Red Hat Enterprise Linux 8
+
+included packages (override via PACKAGES environment variable):
+
+$(basename -a $HERE/pkgbuilds/bin/* neovim | sort | awk '{ print "  " $1 }')
 HELPEOF
 }
 
