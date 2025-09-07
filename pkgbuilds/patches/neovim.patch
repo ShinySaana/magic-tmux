@@ -1,0 +1,51 @@
+diff --git a/PKGBUILD b/PKGBUILD
+index 08e68af..9d45a34 100644
+--- a/PKGBUILD
++++ b/PKGBUILD
+@@ -14,23 +14,6 @@ license=(
+   Apache-2.0
+   LicenseRef-vim
+ )
+-depends=(
+-  libluv
+-  libutf8proc
+-  libuv
+-  'libvterm>=0.3.3'
+-  lua51-lpeg
+-  luajit
+-  msgpack-c
+-  tree-sitter
+-  tree-sitter-c
+-  tree-sitter-lua
+-  tree-sitter-markdown
+-  tree-sitter-query
+-  tree-sitter-vim
+-  tree-sitter-vimdoc
+-  unibilium
+-)
+ makedepends=(
+   cmake
+   git
+@@ -59,12 +42,21 @@ sha512sums=('6564c2033042bfdad929043a4662ce78294ed1ed1141e3665444b70484b18322cc0
+ 
+ build() {
+   cd ${pkgname}
++  cmake \
++    -S cmake.deps \
++    -B .deps \
++    -G Ninja \
++    -D CMAKE_BUILD_TYPE=RelWithDebInfo \
++    -D USE_BUNDLED_LUAJIT=OFF
++  cmake --build .deps --verbose
++
+   cmake \
+     -B build \
+     -G Ninja \
+     -D CMAKE_BUILD_TYPE=RelWithDebInfo \
+     -D CMAKE_INSTALL_PREFIX=/usr \
+-    -D USE_BUNDLED=OFF \
++    -D USE_BUNDLED_LUAJIT=OFF \
++    -D Luajit_ROOT="$SYSROOTBASE/stage2/usr" \
+     -D ENABLE_TRANSLATIONS=ON \
+     -W no-dev
+   cmake --build build --verbose

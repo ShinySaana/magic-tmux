@@ -4,6 +4,9 @@
 [submodule "pkgbuilds/lib/libcap"]
 	path = pkgbuilds/lib/libcap
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/libcap.git
+[submodule "pkgbuilds/lib/luajit"]
+	path = pkgbuilds/lib/luajit
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/luajit.git
 [submodule "pkgbuilds/lib/ncurses"]
 	path = pkgbuilds/lib/ncurses
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/ncurses.git
@@ -25,6 +28,9 @@
 [submodule "pkgbuilds/bin/grml-zsh-config"]
 	path = pkgbuilds/bin/grml-zsh-config
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/grml-zsh-config.git
+[submodule "pkgbuilds/bin/neovim"]
+	path = pkgbuilds/bin/neovim
+	url = https://gitlab.archlinux.org/archlinux/packaging/packages/neovim.git
 [submodule "pkgbuilds/bin/ripgrep"]
 	path = pkgbuilds/bin/ripgrep
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/ripgrep.git

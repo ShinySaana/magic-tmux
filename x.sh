@@ -35,9 +35,6 @@ ARCH=x86_64
 GLIBC_URL="https://archive.archlinux.org/packages/g/glibc/glibc-$GLIBC_VERSION-$ARCH.pkg.tar.$PKGEXT"
 GCCLIBS_URL="https://archive.archlinux.org/packages/g/gcc-libs/gcc-libs-$GCCLIBS_VERSION-$ARCH.pkg.tar.$PKGEXT"
 
-NEOVIM_VERSION=v0.11.4
-NEOVIM_URL="https://github.com/neovim/neovim/releases/download/$NEOVIM_VERSION/nvim-linux-$ARCH.tar.gz"
-
 HERE="$(realpath "$(dirname "$0")")"
 
 SYSROOT="$HERE/build"
@@ -49,23 +46,14 @@ FINALDIR="$SYSROOT/final"
 NEOVIM=1
 
 # Package selection
-# If the user specified PACKAGES, only include neovim if explicitly listed
-# Otherwise, include everything
 #
 # TODO: Libraries are included unconditionally right now
-# under the expectation the user will want to include tmux & zsh.
+# under the expectation the user will want to include tmux & zsh & neovim.
 if [[ -v PACKAGES ]]; then
     if [[ "$PACKAGES" == *([[:space:]]) ]]; then
         printf "Error: no packages selected." >&2
         exit 1
     fi
-
-    # Deselect neovim if not specified
-    if [[ $PACKAGES != *@(nvim|neovim)* ]]; then
-        NEOVIM=0
-    fi
-
-    PACKAGES="${PACKAGES//@(nvim|neovim)/}"
 
     for pkg in $PACKAGES; do
         if [[ ! -d "$PKGDIR/bin/$pkg" ]]; then
@@ -195,31 +183,23 @@ stage3() {
 
     ( cd "$FINALDIR"; find . -delete )
 
-    local nvim_tar="$CACHEDIR/nvim.tar.gz"
-    if (( NEOVIM )); then
-        [[ -f "$nvim_tar" ]] ||
-            download_file "$NEOVIM_URL" "$nvim_tar"
-    fi
-
     msg "copying stage2 files to final directory"
     files=(
         'usr/lib/libcap.so*'
         'usr/lib/libevent_core*.so*'
+        'usr/lib/libluajit*.so*'
         'usr/lib/libncursesw.so*'
         'usr/lib/libpcre2-8.so*'
-        'usr/share/licenses'
-        'usr/share/tabset'
-        'usr/share/terminfo'
-        usr/bin/{captoinfo,clear,infocmp,infotocap,reset,tabs,tic,toe,tput,tset}
-        usr/share/man/man1/{captoinfo,clear,infocmp,infotocap,reset,tabs,tic,tput,tset}.'*'
+        'usr/lib/lua'
+        usr/share/{licenses,lua,'luajit*',tabset,terminfo}
+        usr/bin/{captoinfo,clear,infocmp,infotocap,reset,tabs,tic,toe,tput,tset,'luajit*'}
+        usr/share/man/man1/{captoinfo,clear,infocmp,infotocap,reset,tabs,tic,tput,tset,luajit}.'*'
     )
     ( cd "$SYSROOT/stage2"; cp -a --parents -- ${files[@]} "$FINALDIR" )
 
     msg "installing binaries to final directory"
     printf "%s\0" "$PKGDIR"/bin/@($PACKAGES)/!(*-doc?(s)-*).pkg.tar.* |
         xargs -0 -n1 bsdtar -xC "$FINALDIR" --exclude '.*' -f
-
-    (( NEOVIM )) && bsdtar -xC "$FINALDIR/usr" --exclude '.*' -f "$nvim_tar" --strip-components 1
 
     msg "copying base files to final directory"
     ( cd "$BASEDIR"; cp -a --parents * "$FINALDIR" )
@@ -235,7 +215,7 @@ stage3() {
 }
 
 read_marker() {
-    [[ -f "$CACHEDIR/marker" ]] && cat "$CACHEDIR/marker"
+    cat "$CACHEDIR/marker"
 }
 
 # make_tarball <srcdir> <filename>
@@ -259,13 +239,21 @@ make_tarball() {
 }
 
 build() {
-    local stage=$(read_marker)
-    local tar="$HERE/$1"
+    local preset=$([[ -f "$CACHEDIR/preset" ]] && cat "$CACHEDIR/preset")
+
+    if [[ -f "$CACHEDIR/preset" && "$preset" != "$PRESET" ]]; then
+        msg "Preset changed ($preset -> $PRESET), forcing cleanbuild"
+        clean
+    fi
 
     mkdir -p "$SYSROOT/stage1" "$SYSROOT/stage2" "$CACHEDIR" "$FINALDIR"
     echo '*' > "$SYSROOT/.gitignore"
     echo '*' > "$CACHEDIR/.gitignore"
     [[ -f "$CACHEDIR/marker" ]] || echo > "$CACHEDIR/marker"
+    [[ -f "$CACHEDIR/preset" ]] || echo "$PRESET" > "$CACHEDIR/preset"
+
+    local stage=$(read_marker)
+    local tar="$HERE/$1"
 
     case "$stage" in
         stage1)
@@ -341,7 +329,7 @@ available presets (set via PRESET environment variable):
 
 included packages (override via PACKAGES environment variable):
 
-$(basename -a $HERE/pkgbuilds/bin/* neovim | sort | awk '{ print "  " $1 }')
+$(basename -a $HERE/pkgbuilds/bin/* | sort | awk '{ print "  " $1 }')
 HELPEOF
 }
 
