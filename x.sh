@@ -40,7 +40,7 @@ HERE="$(realpath "$(dirname "$0")")"
 SYSROOT="$HERE/build"
 PKGDIR="$HERE/pkgbuilds"
 BASEDIR="$HERE/base"
-CACHEDIR="$HERE/cache"
+CACHEDIR="$SYSROOT/cache"
 FINALDIR="$SYSROOT/final"
 
 NEOVIM=1
@@ -246,7 +246,6 @@ build() {
 
     mkdir -p "$SYSROOT/stage1" "$SYSROOT/stage2" "$CACHEDIR" "$FINALDIR"
     echo '*' > "$SYSROOT/.gitignore"
-    echo '*' > "$CACHEDIR/.gitignore"
     [[ -f "$CACHEDIR/marker" ]] || echo > "$CACHEDIR/marker"
     [[ -f "$CACHEDIR/preset" ]] || echo "$PRESET" > "$CACHEDIR/preset"
 
@@ -273,7 +272,7 @@ build() {
 }
 
 clean() {
-    rm -rf "$SYSROOT" "$CACHEDIR"
+    rm -rf "$SYSROOT"
 
     (
         cd "$PKGDIR"
