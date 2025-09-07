@@ -210,8 +210,6 @@ stage3() {
         usr/share/{applications,bash-completion,fish,fzf,icons,vim}
     )
     ( cd "$FINALDIR"; rm -rv -- ${files[@]} )
-
-    write_marker stage3
 }
 
 read_marker() {
@@ -263,9 +261,6 @@ build() {
             ;;
         stage2)
             stage3
-            make_tarball "$tar"
-            ;;
-        stage3)
             make_tarball "$tar"
             ;;
         *)
