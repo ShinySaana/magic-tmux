@@ -245,7 +245,7 @@ make_tarball() {
 
 build() {
     local stage=$(read_marker)
-    local tar="$HERE/magic-tmux.tar.zst"
+    local tar="$HERE/$1"
 
     mkdir -p "$SYSROOT/stage1" "$SYSROOT/stage2" "$CACHEDIR" "$FINALDIR"
     echo '*' > "$SYSROOT/.gitignore"
@@ -317,7 +317,7 @@ HELPEOF
 # main [command]
 main() {
     case "${1:-build}" in
-        build) build;;
+        build) build "${2:-magic-tmux.tar.zst}";;
         clean) clean;;
         reset) reset "$2";;
         add) add_pkgbuild "$2" "$3" "${4:-$3}";;
