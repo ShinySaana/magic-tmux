@@ -18,6 +18,22 @@
 # 2.39 (RHEL 10)
 # 2.34 (RHEL 9)
 # 2.28 (RHEL 8)
+#
+# Available on Arch Linux Archive:
+# 2.28-6
+# 2.29-4
+# 2.30-3
+# 2.31-5
+# 2.32-5
+# 2.33-5
+# 2.35-6
+# 2.36-7
+# 2.37-4
+# 2.38-8
+# 2.39+r52+gf8e4623421-1
+# 2.40+r66+g7d4b6bcae91f-1
+# 2.41+r65+ge7c419a29575-1
+# 2.42+r17+gd7274d718e6f-1
 
 set -euo pipefail
 shopt -s extglob
