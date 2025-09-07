@@ -1,8 +1,8 @@
 # magic tmux
 
-This repository contains scripts for compiling tmux, zsh and neovim against glibc 2.36 and allow
-them to be deployed anywhere as a simple tarball, without requiring packages to be compiled on an
-older system.
+This repository contains scripts for compiling tmux, zsh and neovim against older versions of
+glibc and libgcc and allow them to be deployed anywhere as a simple tarball, without requiring
+packages to be compiled on an older system.
 
 This project uses the latest Arch Linux PKGBUILDs with minor patches to enable portability and
 compiling against the older libc.
@@ -59,7 +59,8 @@ As well as any libraries other than what's provided by glibc:
 - ncurses
 - pcre2
 
-To build, run `./x.sh build`. You may be asked to install build dependencies.
+To build, run `./x.sh build`. You may be asked to install build dependencies. See `./x.sh help`
+for available presets and how to use them.
 
 Side-by-side home and configuration directories can be added to the final archive by creating and
 adding files to `base/home` and `base/config` repspectively.
