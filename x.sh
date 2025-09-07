@@ -336,7 +336,7 @@ HELPEOF
 # main [command]
 main() {
     case "${1:-build}" in
-        build) build "${2:-magic-tmux.tar.zst}";;
+        build) build "${2:-magic-tmux-$PRESET.tar.zst}";;
         clean) clean;;
         reset) reset "$2";;
         add) add_pkgbuild "$2" "$3" "${4:-$3}";;
