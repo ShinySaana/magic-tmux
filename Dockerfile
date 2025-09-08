@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM archlinux:base-devel
+FROM archlinux:base-devel AS build
 
 RUN <<EOF
 pacman -Syu --noconfirm git go patchelf
@@ -12,4 +12,11 @@ WORKDIR /src
 
 COPY --chown=builduser . /src/
 
-ENTRYPOINT bash -l
+RUN <<EOF
+PRESET=debian12 ./x.sh
+PRESET=debian11 ./x.sh
+EOF
+
+FROM scratch
+
+COPY --from=build /src/magic-tmux-*.tar* /
