@@ -116,7 +116,7 @@ patch_pkgbuild() {
 
 build_pkg() {
     msg "building ${PWD##*/}"
-    makepkg -s --config "$PKGDIR/makepkg.conf" --skippgpcheck --nocheck "$@"
+    makepkg -s --config "$PKGDIR/makepkg.conf" --skippgpcheck --nocheck --noconfirm "$@"
 }
 
 cleanbuild_pkg() {
