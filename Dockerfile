@@ -2,7 +2,7 @@
 FROM archlinux:base-devel
 
 RUN <<EOF
-pacman -Syu --noconfirm git
+pacman -Syu --noconfirm git go
 useradd -k /dev/null -md /src -U -s /usr/bin/bash builduser
 echo 'builduser ALL=(ALL:ALL) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/local
 EOF
