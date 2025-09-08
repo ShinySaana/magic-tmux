@@ -1,0 +1,20 @@
+pkgname=git-zsh-completion
+pkgver=2.51.0
+pkgrel=1
+pkgdesc='the fast distributed version control system - upstream zsh completion'
+arch=('any')
+url='https://git-scm.com/'
+license=('GPL-2.0-only')
+source=(
+    "https://raw.githubusercontent.com/git/git/refs/tags/v${pkgver}/contrib/completion/git-completion.bash"
+    "https://raw.githubusercontent.com/git/git/refs/tags/v${pkgver}/contrib/completion/git-completion.zsh"
+)
+sha256sums=('7e23e7ead6481795f03851d6ad7d7488f49aabd0a209f1cf73f270fe68634b8b'
+            'ceca48069643c6c45a3f6d618b666f878ac5f89b17934c81bdc1e90c98af2e32')
+
+package() {
+  mkdir -p "$pkgdir"/usr/share/bash-completion/completions/
+  install -m 0644 git-completion.bash "$pkgdir"/usr/share/bash-completion/completions/git
+  mkdir -p "$pkgdir"/usr/share/zsh/site-functions/
+  install -m 0644 git-completion.zsh "$pkgdir"/usr/share/zsh/site_functions/_git
+}

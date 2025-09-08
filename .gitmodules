@@ -22,9 +22,6 @@
 [submodule "pkgbuilds/bin/fzf"]
 	path = pkgbuilds/bin/fzf
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/fzf.git
-[submodule "pkgbuilds/bin/git-zsh-completion"]
-	path = pkgbuilds/bin/git-zsh-completion
-	url = https://gitlab.archlinux.org/archlinux/packaging/packages/git.git
 [submodule "pkgbuilds/bin/grml-zsh-config"]
 	path = pkgbuilds/bin/grml-zsh-config
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/grml-zsh-config.git
