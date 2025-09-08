@@ -98,12 +98,16 @@ patch_libc() {
         "$SYSROOT/stage1/usr/lib/libc.so" "$SYSROOT/stage1/usr/lib/libm."{a,so}
 }
 
+fullclean_pkg() {
+    clean_pkg
+    # For some reason Go decides to store packages in read-only directories...
+    [[ -d src && ! -w src ]] && chmod -R u+w src
+    git clean -xdff
+}
+
 clean_pkg() {
     msg "cleaning ${PWD##*/}"
     git reset --hard HEAD
-    # For some reason Go decides to store packages in read-only directories...
-    [[ -d src ]] && chmod -R u+w src
-    git clean -xdff
 }
 
 patch_pkgbuild() {
@@ -115,14 +119,18 @@ patch_pkgbuild() {
 }
 
 build_pkg() {
-    msg "building ${PWD##*/}"
-    makepkg -s --config "$PKGDIR/makepkg.conf" --skippgpcheck --nocheck --noconfirm "$@"
+    if [[ $(shopt -s nullglob; echo *.pkg.tar*) ]]; then
+        msg "skipped building ${PWD##*/}"
+    else
+        msg "building ${PWD##*/}"
+        makepkg --config "$PKGDIR/makepkg.conf" --syncdeps --skippgpcheck --nocheck --noconfirm "$@"
+    fi
 }
 
 cleanbuild_pkg() {
     clean_pkg
     patch_pkgbuild
-    build_pkg -f
+    build_pkg
 }
 
 # write_marker <marker>
@@ -277,9 +285,12 @@ clean() {
     (
         cd "$PKGDIR"
         for pkg in lib/* bin/*; do
-            ( cd "$pkg"; clean_pkg )
+            ( cd "$pkg"; fullclean_pkg )
         done
     )
+
+    # Go's build cache fucks up when switching libcs.
+    go clean -cache
 }
 
 # reset <marker>
