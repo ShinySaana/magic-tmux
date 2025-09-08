@@ -209,6 +209,9 @@ stage3() {
     printf "%s\0" "$PKGDIR"/bin/@($PACKAGES)/!(*-doc?(s)-*).pkg.tar.* |
         xargs -0 -n1 bsdtar -xC "$FINALDIR" --exclude '.*' -f
 
+    msg "patching rpath of binaries"
+    ( cd "$FINALDIR/usr/bin"; patchelf --force-rpath --set-rpath '$ORIGIN/../lib' * )
+
     msg "copying base files to final directory"
     ( cd "$BASEDIR"; cp -a --parents * "$FINALDIR" )
 
