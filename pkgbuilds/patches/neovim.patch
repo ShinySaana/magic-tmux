@@ -1,11 +1,11 @@
 diff --git a/0100-luajit-DEPS_CMAKE_ARGS.patch b/0100-luajit-DEPS_CMAKE_ARGS.patch
 new file mode 100644
-index 0000000..e9d20db
+index 0000000..0cb4458
 --- /dev/null
 +++ b/0100-luajit-DEPS_CMAKE_ARGS.patch
 @@ -0,0 +1,13 @@
 +diff --git a/cmake.deps/cmake/BuildLuv.cmake b/cmake.deps/cmake/BuildLuv.cmake
-+index 2e07f9e337..c831266083 100644
++index 2e07f9e337..98f2e2cfb7 100644
 +--- a/cmake.deps/cmake/BuildLuv.cmake
 ++++ b/cmake.deps/cmake/BuildLuv.cmake
 +@@ -8,7 +8,7 @@ set(LUV_CMAKE_ARGS
@@ -13,12 +13,12 @@ index 0000000..e9d20db
 + 
 + if(USE_BUNDLED_LIBUV)
 +-  list(APPEND LUV_CMAKE_ARGS -D CMAKE_PREFIX_PATH=${DEPS_INSTALL_DIR})
-++  list(APPEND LUV_CMAKE_ARGS -D "CMAKE_PREFIX_PATH=${DEPS_INSTALL_DIR}$<SEMICOLON>${Luajit_ROOT}")
+++  list(APPEND LUV_CMAKE_ARGS -D CMAKE_PREFIX_PATH=${DEPS_INSTALL_DIR}$<SEMICOLON>${Luajit_ROOT})
 + endif()
 + 
 + list(APPEND LUV_CMAKE_ARGS "-DCMAKE_C_FLAGS:STRING=${DEPS_INCLUDE_FLAGS} -w")
 diff --git a/PKGBUILD b/PKGBUILD
-index 08e68af..248a22f 100644
+index 08e68af..64a7719 100644
 --- a/PKGBUILD
 +++ b/PKGBUILD
 @@ -14,23 +14,6 @@ license=(
@@ -45,7 +45,7 @@ index 08e68af..248a22f 100644
  makedepends=(
    cmake
    git
-@@ -52,19 +35,41 @@ backup=(etc/xdg/nvim/sysinit.vim)
+@@ -52,19 +35,42 @@ backup=(etc/xdg/nvim/sysinit.vim)
  source=(
    "git+https://github.com/neovim/neovim.git#tag=v$pkgver"
    nvimdoc{,.hook}
@@ -55,7 +55,7 @@ index 08e68af..248a22f 100644
              '22662462c823de243599cdd3483e46ade4ab59b219e907468d34c18e584fe7477548e357ee2ce56bb098cf54b770b108a3511703dd486f0774a65c84af78f6aa'
 -            '3c6ee1e4646d09c164a2212f9e4d2f53158ff32911b0972e060a395a8d4685334574a7ede995a81680dcc0750cd3327a78beb7904a4bb326b2399d79a8b12d5e')
 +            '3c6ee1e4646d09c164a2212f9e4d2f53158ff32911b0972e060a395a8d4685334574a7ede995a81680dcc0750cd3327a78beb7904a4bb326b2399d79a8b12d5e'
-+            'ca32b3de36596785be788d4141676164b23042a489ed8f4100bd6cb3450cb8dd8a3a3a4b4306a0df84f86c756450975eae329aebb3464f78d8f61bab543b5707')
++            '6e2100068681b31f7ac26e78b43882171507e3188c2c891661c6937b311eb816a182e57a5f2afd72bb26be50ace923b736850c6278451d0dfd66ebc9efb6fb96')
 +
 +prepare() {
 +  cd ${pkgname}
@@ -68,6 +68,7 @@ index 08e68af..248a22f 100644
 +  # Neovim wants to run the luajit we built in stage1 as part of its build.
 +  PATH="$SYSROOTBASE/stage2/usr/bin:${PATH}"
 +  export LD_LIBRARY_PATH="$SYSROOTBASE/stage2/usr/lib"
++  export LUA_PATH="$SYSROOTBASE/stage2/usr/share/luajit-2.1/?.lua;;"
 +
 +  cmake \
 +    -S cmake.deps \
