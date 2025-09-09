@@ -101,7 +101,7 @@ patch_libc() {
 fullclean_pkg() {
     clean_pkg
     # For some reason Go decides to store packages in read-only directories...
-    [[ -d src && ! -w src ]] && chmod -R u+w src
+    [[ -d src ]] && chmod -R u+w src
     git clean -xdff
 }
 
