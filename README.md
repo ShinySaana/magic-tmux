@@ -68,6 +68,20 @@ adding files to `base/home` and `base/config` repspectively.
 Global initialisation and shutdown files for tmux and zsh are read from `base/etc` only but source
 the corresponding files from the system `/etc` directory by default.
 
+## Docker
+
+Make sure docker-buildx is installed.
+
+Modify `Dockerfile` to change presets & packages. By default full archives for Debian 12 and 11
+are built.
+
+Run:
+```
+docker build -t magic-tmux -o output .
+```
+
+The archives will be placed in the `output` directory.
+
 ## License
 
 The original files in this repository are licensed under the BSD Zero Clause License.
