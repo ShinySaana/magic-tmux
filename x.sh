@@ -186,6 +186,15 @@ stage2() {
     write_marker stage2
 }
 
+patch_rpaths() {
+    for file in *; do
+        if file "$file" | grep -q ELF; then
+            msg "patching $file"
+            patchelf --force-rpath --set-rpath '$ORIGIN/../lib' "$file"
+        fi
+    done
+}
+
 stage3() {
     msg "===== STAGE 3 ====="
 
@@ -210,7 +219,7 @@ stage3() {
         xargs -0 -n1 bsdtar -xC "$FINALDIR" --exclude '.*' -f
 
     msg "patching rpath of binaries"
-    ( cd "$FINALDIR/usr/bin"; patchelf --force-rpath --set-rpath '$ORIGIN/../lib' * )
+    ( cd "$FINALDIR/usr/bin"; patch_rpaths )
 
     msg "copying base files to final directory"
     ( cd "$BASEDIR"; cp -a --parents * "$FINALDIR" )
@@ -218,7 +227,7 @@ stage3() {
     msg "cleaning up"
     files=(
         etc/skel
-        usr/share/{applications,bash-completion,fish,fzf,icons,vim}
+        usr/share/{applications,bash-completion/completions/!(git),fish,fzf,icons,libalpm,metainfo,pixmaps,vim}
     )
     ( cd "$FINALDIR"; rm -rv -- ${files[@]} )
 }
