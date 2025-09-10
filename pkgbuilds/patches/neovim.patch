@@ -1,24 +1,24 @@
-diff --git a/0100-luajit-DEPS_CMAKE_ARGS.patch b/0100-luajit-DEPS_CMAKE_ARGS.patch
+diff --git a/0100-luajit-cflags.patch b/0100-luajit-cflags.patch
 new file mode 100644
-index 0000000..0cb4458
+index 0000000..26d7361
 --- /dev/null
-+++ b/0100-luajit-DEPS_CMAKE_ARGS.patch
++++ b/0100-luajit-cflags.patch
 @@ -0,0 +1,13 @@
-+diff --git a/cmake.deps/cmake/BuildLuv.cmake b/cmake.deps/cmake/BuildLuv.cmake
-+index 2e07f9e337..98f2e2cfb7 100644
-+--- a/cmake.deps/cmake/BuildLuv.cmake
-++++ b/cmake.deps/cmake/BuildLuv.cmake
-+@@ -8,7 +8,7 @@ set(LUV_CMAKE_ARGS
-+ list(APPEND LUV_CMAKE_ARGS -D WITH_LUA_ENGINE=${LUA_ENGINE})
-+ 
-+ if(USE_BUNDLED_LIBUV)
-+-  list(APPEND LUV_CMAKE_ARGS -D CMAKE_PREFIX_PATH=${DEPS_INSTALL_DIR})
-++  list(APPEND LUV_CMAKE_ARGS -D CMAKE_PREFIX_PATH=${DEPS_INSTALL_DIR}$<SEMICOLON>${Luajit_ROOT})
++diff --git a/cmake.deps/cmake/BuildLuajit.cmake b/cmake.deps/cmake/BuildLuajit.cmake
++index db37d79099..bf82fa41d4 100644
++--- a/cmake.deps/cmake/BuildLuajit.cmake
+++++ b/cmake.deps/cmake/BuildLuajit.cmake
++@@ -27,7 +27,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "OpenBSD")
++ else()
++   set(AMD64_ABI "")
 + endif()
-+ 
-+ list(APPEND LUV_CMAKE_ARGS "-DCMAKE_C_FLAGS:STRING=${DEPS_INCLUDE_FLAGS} -w")
++-set(BUILDCMD_UNIX ${MAKE_PRG} -j CFLAGS=-fPIC
+++set(BUILDCMD_UNIX ${MAKE_PRG} -j CFLAGS+=-fPIC
++                               CFLAGS+=-DLUA_USE_APICHECK
++                               CFLAGS+=-funwind-tables
++                               ${NO_STACK_CHECK}
 diff --git a/PKGBUILD b/PKGBUILD
-index 08e68af..64a7719 100644
+index 08e68af..07147db 100644
 --- a/PKGBUILD
 +++ b/PKGBUILD
 @@ -14,23 +14,6 @@ license=(
@@ -45,38 +45,31 @@ index 08e68af..64a7719 100644
  makedepends=(
    cmake
    git
-@@ -52,19 +35,42 @@ backup=(etc/xdg/nvim/sysinit.vim)
+@@ -52,19 +35,33 @@ backup=(etc/xdg/nvim/sysinit.vim)
  source=(
    "git+https://github.com/neovim/neovim.git#tag=v$pkgver"
    nvimdoc{,.hook}
-+  0100-luajit-DEPS_CMAKE_ARGS.patch
++  0100-luajit-cflags.patch
  )
  sha512sums=('6564c2033042bfdad929043a4662ce78294ed1ed1141e3665444b70484b18322cc087a1fc38301f9b05483d00200ff71afccc94d5e1c4441d33b7a42b34314ef'
              '22662462c823de243599cdd3483e46ade4ab59b219e907468d34c18e584fe7477548e357ee2ce56bb098cf54b770b108a3511703dd486f0774a65c84af78f6aa'
 -            '3c6ee1e4646d09c164a2212f9e4d2f53158ff32911b0972e060a395a8d4685334574a7ede995a81680dcc0750cd3327a78beb7904a4bb326b2399d79a8b12d5e')
 +            '3c6ee1e4646d09c164a2212f9e4d2f53158ff32911b0972e060a395a8d4685334574a7ede995a81680dcc0750cd3327a78beb7904a4bb326b2399d79a8b12d5e'
-+            '6e2100068681b31f7ac26e78b43882171507e3188c2c891661c6937b311eb816a182e57a5f2afd72bb26be50ace923b736850c6278451d0dfd66ebc9efb6fb96')
++            '27b6fd697d4463be607be13ecc30c588d4730c82d0edc0869263abc960e331bf8e76f07565cb00fdbab8488881f85e9c2ee566a0dc778aeddba4dcb41f403be4')
 +
 +prepare() {
 +  cd ${pkgname}
-+  patch -Np1 < ../../0100-luajit-DEPS_CMAKE_ARGS.patch
++
++  patch -Np1 < ../../0100-luajit-cflags.patch
 +}
- 
+
  build() {
    cd ${pkgname}
-+
-+  # Neovim wants to run the luajit we built in stage1 as part of its build.
-+  PATH="$SYSROOTBASE/stage2/usr/bin:${PATH}"
-+  export LD_LIBRARY_PATH="$SYSROOTBASE/stage2/usr/lib"
-+  export LUA_PATH="$SYSROOTBASE/stage2/usr/share/luajit-2.1/?.lua;;"
-+
 +  cmake \
 +    -S cmake.deps \
 +    -B .deps \
 +    -G Ninja \
-+    -D CMAKE_BUILD_TYPE=RelWithDebInfo \
-+    -D USE_BUNDLED_LUAJIT=OFF \
-+    -D Luajit_ROOT="$SYSROOTBASE/stage2/usr"
++    -D CMAKE_BUILD_TYPE=RelWithDebInfo
 +  cmake --build .deps --verbose
 +
    cmake \
@@ -85,8 +78,6 @@ index 08e68af..64a7719 100644
      -D CMAKE_BUILD_TYPE=RelWithDebInfo \
      -D CMAKE_INSTALL_PREFIX=/usr \
 -    -D USE_BUNDLED=OFF \
-+    -D USE_BUNDLED_LUAJIT=OFF \
-+    -D Luajit_ROOT="$SYSROOTBASE/stage2/usr" \
      -D ENABLE_TRANSLATIONS=ON \
      -W no-dev
    cmake --build build --verbose

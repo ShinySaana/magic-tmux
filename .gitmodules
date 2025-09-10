@@ -4,9 +4,6 @@
 [submodule "pkgbuilds/lib/libcap"]
 	path = pkgbuilds/lib/libcap
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/libcap.git
-[submodule "pkgbuilds/lib/luajit"]
-	path = pkgbuilds/lib/luajit
-	url = https://gitlab.archlinux.org/archlinux/packaging/packages/luajit.git
 [submodule "pkgbuilds/lib/ncurses"]
 	path = pkgbuilds/lib/ncurses
 	url = https://gitlab.archlinux.org/archlinux/packaging/packages/ncurses.git
