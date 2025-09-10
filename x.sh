@@ -204,13 +204,11 @@ stage3() {
     files=(
         'usr/lib/libcap.so*'
         'usr/lib/libevent_core*.so*'
-        'usr/lib/libluajit*.so*'
         'usr/lib/libncursesw.so*'
         'usr/lib/libpcre2-8.so*'
-        'usr/lib/lua'
-        usr/share/{licenses,lua,'luajit*',tabset,terminfo}
-        usr/bin/{captoinfo,clear,infocmp,infotocap,reset,tabs,tic,toe,tput,tset,'luajit*'}
-        usr/share/man/man1/{captoinfo,clear,infocmp,infotocap,reset,tabs,tic,tput,tset,luajit}.'*'
+        usr/share/{licenses,tabset,terminfo}
+        usr/bin/{captoinfo,clear,infocmp,infotocap,reset,tabs,tic,toe,tput,tset}
+        usr/share/man/man1/{captoinfo,clear,infocmp,infotocap,reset,tabs,tic,tput,tset}.'*'
     )
     ( cd "$SYSROOT/stage2"; cp -a --parents -- ${files[@]} "$FINALDIR" )
 
