@@ -1,16 +1,11 @@
-Dockerfile.builder
-Dockerfile.dev
+docker/Dockerfile
 docker-compose.yml
-.git
 .gitignore
 .gitmodules
 /*.md
 /*.txt
 Justfile
 
-
 *.tar
 *.tar.*
-/base/config/
-/base/home/
 build

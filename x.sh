@@ -74,18 +74,6 @@ else
     PACKAGES="*"
 fi
 
-# ignore git cleaning commands inside Docker
-if [ -z ${IN_DOCKER+x} ]; then
-    IN_DOCKER=false
-fi
-
-# do_git <args...>
-do_git() {
-    if ! $IN_DOCKER; then
-        git "$@"
-    fi
-}
-
 # dump_symvers <file>
 dump_symvers() {
     nm -Du ${1:+"$1"} | grep -P 'GLIBC_2\.(3[7-9]|[4-9][0-9])'
@@ -119,12 +107,12 @@ fullclean_pkg() {
     clean_pkg
     # For some reason Go decides to store packages in read-only directories...
     [[ -d src ]] && chmod -R u+w src
-    do_git clean -xdff
+    git clean -xdff
 }
 
 clean_pkg() {
     msg "cleaning ${PWD##*/}"
-    do_git reset --hard HEAD
+    git reset --hard HEAD
 }
 
 patch_pkgbuild() {
@@ -271,6 +259,11 @@ make_tarball() {
     )
 }
 
+# list_presets
+list_presets() {
+    echo "${!PRESETS[@]}" | tr " " "\n" | sort
+}
+
 build() {
     local preset=$([[ -f "$CACHEDIR/preset" ]] && cat "$CACHEDIR/preset")
 
@@ -341,11 +334,12 @@ usage: x.sh [command]
 
 available commands:
 
+  add <lib|bin> <PACKAGE>       add PKGBUILD to project.
   build                         build the project. default if no command is specified.
   clean                         clean up build and cache directories.
-  reset <STAGE>                 reset build to specified STAGE
-  add <lib|bin> <PACKAGE>       add PKGBUILD to project
-  help                          show this text
+  ls                            list available presets.
+  reset <STAGE>                 reset build to specified STAGE.
+  help                          show this text.
 
 available presets (set via PRESET environment variable):
 
@@ -370,6 +364,7 @@ main() {
     case "${1:-build}" in
         build) build "${2:-magic-tmux-$PRESET.tar.zst}";;
         clean) clean;;
+        ls) list_presets;;
         reset) reset "$2";;
         add) add_pkgbuild "$2" "$3" "${4:-$3}";;
         help|--help) usage;;

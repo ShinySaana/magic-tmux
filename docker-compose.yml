@@ -4,15 +4,19 @@ services:
   builder:
     image: magic-tmux/builder
     build:
-      dockerfile: ./Dockerfile.builder
+      dockerfile: ./docker/Dockerfile
       args:
+        UID: ${UID?'UID' is required.}
         ARCH_ARCHIVE_DATE: ${ARCH_ARCHIVE_DATE:-last}
+    volumes:
+      - type: bind
+        source: ./output
+        target: /src/output
     restart: "no"
 
   dev:
-    image: magic-tmux/dev
-    build:
-      dockerfile: ./Dockerfile.dev
-      additional_contexts:
-        builder: "service:builder"
+    image: magic-tmux/builder
+    entrypoint: ["bash", "-i"]
+    depends_on:
+      - builder
     restart: "no"
