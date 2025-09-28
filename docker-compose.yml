@@ -1,0 +1,18 @@
+name: magic-tmux
+
+services:
+  builder:
+    image: magic-tmux/builder
+    build:
+      dockerfile: ./Dockerfile.builder
+      args:
+        ARCH_ARCHIVE_DATE: ${ARCH_ARCHIVE_DATE:-last}
+    restart: "no"
+
+  dev:
+    image: magic-tmux/dev
+    build:
+      dockerfile: ./Dockerfile.dev
+      additional_contexts:
+        builder: "service:builder"
+    restart: "no"

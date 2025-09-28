@@ -1,6 +1,6 @@
-dev:
-    docker build -f Dockerfile.dev -t magic-tmux-dev .
-    docker run --rm --name magic-tmux-dev -it magic-tmux-dev
+dev *DEVARGS:
+    docker compose build dev
+    docker compose run --rm dev {{DEVARGS}}
 
 fullbuild:
     docker build -t magic-tmux -o output .

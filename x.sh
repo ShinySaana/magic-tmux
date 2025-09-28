@@ -3,6 +3,11 @@
 # pacman (curl, libarchive)
 # base (findutils, grep, coreutils)
 # base-devel (fakeroot, patch, perl, sed)
+
+if [ ! -z ${MAGIC_TMUX_X_DEBUG+x} ]; then
+    set -x
+fi
+
 set -euo pipefail
 shopt -s extglob
 
@@ -69,6 +74,18 @@ else
     PACKAGES="*"
 fi
 
+# ignore git cleaning commands inside Docker
+if [ -z ${IN_DOCKER+x} ]; then
+    IN_DOCKER=false
+fi
+
+# do_git <args...>
+do_git() {
+    if ! $IN_DOCKER; then
+        git "$@"
+    fi
+}
+
 # dump_symvers <file>
 dump_symvers() {
     nm -Du ${1:+"$1"} | grep -P 'GLIBC_2\.(3[7-9]|[4-9][0-9])'
@@ -102,12 +119,12 @@ fullclean_pkg() {
     clean_pkg
     # For some reason Go decides to store packages in read-only directories...
     [[ -d src ]] && chmod -R u+w src
-    git clean -xdff
+    do_git clean -xdff
 }
 
 clean_pkg() {
     msg "cleaning ${PWD##*/}"
-    git reset --hard HEAD
+    do_git reset --hard HEAD
 }
 
 patch_pkgbuild() {
